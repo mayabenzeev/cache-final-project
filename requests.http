@@ -1,0 +1,79 @@
+### Click the ▶ next to a request (IntelliJ / VS Code "REST Client").
+### The response time is shown with each response, and in the app console.
+
+### ---------------- Exercise 1: the slow plan catalogue ----------------
+
+### Manual cache-aside (ManualPlanService). Run it twice: ~1000 ms, then ~5 ms
+GET http://localhost:8080/ex1/plans/basic
+
+### @Cacheable version (AnnotatedPlanService)
+GET http://localhost:8080/ex1/annotated/plans/basic
+
+### A plan that doesn't exist -> 404
+GET http://localhost:8080/ex1/plans/does-not-exist
+
+
+### ---------------- Exercise 2: prices change ----------------
+
+### 1. View the plan (caches it)
+GET http://localhost:8080/ex2/plans/unlimited
+
+### 2a. Change the price - invalidate on write (default strategy)
+PUT http://localhost:8080/ex2/plans/unlimited/price?strategy=evict
+Content-Type: application/json
+
+{ "monthlyPrice": 59.99 }
+
+### 2b. Change the price - write-through
+PUT http://localhost:8080/ex2/plans/unlimited/price?strategy=write-through
+Content-Type: application/json
+
+{ "monthlyPrice": 49.99 }
+
+### 3. View it again: is the price new? Was it a hit or a miss?
+GET http://localhost:8080/ex2/plans/unlimited
+
+### Annotated versions (@CacheEvict / @CachePut)
+GET http://localhost:8080/ex2/annotated/plans/family-4
+
+###
+PUT http://localhost:8080/ex2/annotated/plans/family-4/price?strategy=write-through
+Content-Type: application/json
+
+{ "monthlyPrice": 149.00 }
+
+
+### ---------------- Exercise 3: the account that changes one field at a time ----------------
+
+### Hash model (HashAccountCache) - the default
+GET http://localhost:8080/ex3/accounts/acc-1001
+
+### Only the data usage
+GET http://localhost:8080/ex3/accounts/acc-1001/usage
+
+### Record 250MB of usage
+POST http://localhost:8080/ex3/accounts/acc-1001/usage
+Content-Type: application/json
+
+{ "mb": 250 }
+
+### String model (StringAccountCache) - compare in RedisInsight
+GET http://localhost:8080/ex3/accounts/acc-1001?model=string
+
+###
+POST http://localhost:8080/ex3/accounts/acc-1001/usage?model=string
+Content-Type: application/json
+
+{ "mb": 250 }
+
+
+### ---------------- Bonus A: leaderboard ----------------
+
+### Generate 500 random sign-ups
+POST http://localhost:8080/bonus-a/signups/simulate?count=500
+
+### Top plans from Redis (fast)
+GET http://localhost:8080/bonus-a/plans/top?limit=3
+
+### Top plans from the database (slow GROUP BY)
+GET http://localhost:8080/bonus-a/plans/top-from-db?limit=3

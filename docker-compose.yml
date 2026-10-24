@@ -1,0 +1,34 @@
+services:
+  # The cache used by the app (Exercises 1-3 and Bonus A)
+  redis:
+    image: redis:8.10.2-alpine
+    ports:
+      - "6379:6379"
+
+  # Visual browser for Redis: http://localhost:5540
+  redisinsight:
+    image: redis/redisinsight:3.8.0
+    ports:
+      - "5540:5540"
+    environment:
+      # Pre-registers the workshop Redis so you don't have to add it by hand
+      RI_REDIS_HOST: redis
+      RI_REDIS_PORT: "6379"
+      RI_REDIS_ALIAS: telco-workshop
+    depends_on:
+      - redis
+    labels:
+      org.springframework.boot.ignore: true
+
+  # Bonus B only: a tiny Redis with a memory limit.
+  # Start it with: docker compose --profile bonus-b up -d redis-small
+  redis-small:
+    image: redis:8.10.2-alpine
+    profiles: ["bonus-b"]
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    volumes:
+      - ./redis/bonus-b.conf:/usr/local/etc/redis/redis.conf:ro
+    ports:
+      - "6380:6379"
+    labels:
+      org.springframework.boot.ignore: true
