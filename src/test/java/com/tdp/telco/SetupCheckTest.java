@@ -18,9 +18,7 @@ class SetupCheckTest extends WorkshopTest {
 		assertThat(pong).isEqualTo("PONG");
 
 		System.out.println("""
-
-				  ✅  Setup OK: Java %s, Spring Boot, Docker and Redis all work.
-				      You're ready for the workshop. See you there!
+		Setup OK: Java %s, Spring Boot, Docker and Redis all work.
 				""".formatted(Runtime.version().feature()));
 	}
 

@@ -41,7 +41,7 @@ eat 15 of them, so do it now.
 | JDK | **25** | `java -version` |
 | Docker Desktop (or Docker Engine + Compose v2) | any recent | `docker compose version` |
 | Git | any | `git --version` |
-| An IDE | IntelliJ IDEA recommended (it runs `requests.http` out of the box) | |
+| An IDE | IntelliJ IDEA recommended (it runs `requests.http` out of the box) | 
 | RedisInsight desktop app (the one from the lecture) | any recent | it opens |
 
 No JDK 25? Install [Eclipse Temurin 25](https://adoptium.net/temurin/releases/?version=25), or use
@@ -73,7 +73,7 @@ docker compose pull
 The last command downloads every dependency, starts a throwaway Redis in Docker and prints:
 
 ```
-  ✅  Setup OK: Java 25, Spring Boot, Docker and Redis all work.
+  Setup OK: Java 25, Spring Boot, Docker and Redis all work.
 ```
 
 **Last step: connect RedisInsight to the workshop Redis.**
