@@ -1,7 +1,7 @@
 package com.tdp.telco.controller;
 
-import java.util.Map;
-
+import com.tdp.telco.dto.UsageEventRequest;
+import com.tdp.telco.dto.UsageResponse;
 import com.tdp.telco.entity.Account;
 import com.tdp.telco.service.AccountCache;
 import com.tdp.telco.service.HashAccountCache;
@@ -16,15 +16,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
+ * Exercise 3.
  * ?model=hash   (default) HashAccountCache
  * ?model=string StringAccountCache
  */
 @RestController
 @RequestMapping("/ex3/accounts")
 class AccountController {
-
-	record UsageEvent(long mb) {
-	}
 
 	private final HashAccountCache hash;
 	private final StringAccountCache string;
@@ -40,15 +38,15 @@ class AccountController {
 	}
 
 	@GetMapping("/{id}/usage")
-	Map<String, Long> getUsage(@PathVariable String id, @RequestParam(defaultValue = "hash") String model) {
-		return Map.of("dataUsedMb", cache(model).getDataUsedMb(id));
+	UsageResponse getUsage(@PathVariable String id, @RequestParam(defaultValue = "hash") String model) {
+		return new UsageResponse(cache(model).getDataUsedMb(id));
 	}
 
 	@PostMapping("/{id}/usage")
-	Map<String, Long> addUsage(@PathVariable String id, @RequestBody UsageEvent event,
+	UsageResponse addUsage(@PathVariable String id, @RequestBody UsageEventRequest event,
 			@RequestParam(defaultValue = "hash") String model) {
 		cache(model).addUsage(id, event.mb());
-		return Map.of("dataUsedMb", cache(model).getDataUsedMb(id));
+		return new UsageResponse(cache(model).getDataUsedMb(id));
 	}
 
 	private AccountCache cache(String model) {
