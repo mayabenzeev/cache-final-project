@@ -116,18 +116,34 @@ You'll *feel* what caching saves.
 
 ### The repo
 
+A standard layered Spring MVC app:
+
 ```
 src/main/java/com/tdp/telco/
-  data/      the slow "database" (provided, don't edit)
-  config/    Spring cache configuration (one TODO, in Exercise 1)
-  ex1/       Exercise 1   <- your TODOs
-  ex2/       Exercise 2   <- your TODOs
-  ex3/       Exercise 3   <- your TODOs
-  bonusa/    Bonus A      <- your TODOs
-  bonusb/    Bonus B      <- your TODOs
-src/test/java/...         one test class per step, e.g. Ex1Step2CacheAsideTest
-requests.http             every request, one click each
+  controller/   REST endpoints (provided)
+  service/      business logic + caching             <- your TODOs are here
+  repository/   the slow "database", the source of truth (provided, don't edit)
+  entity/       Plan, Account, Signup
+  dto/          request and response bodies
+  config/       Spring cache configuration            <- one TODO (Exercise 1)
+  exception/    NotFoundException -> HTTP 404
+src/test/java/com/tdp/telco/
+  ex1/ ex2/ ex3/ bonusa/ bonusb/   one test class per step, e.g. Ex1Step2CacheAsideTest
+requests.http                      every request, one click each
 ```
+
+Where each exercise lives:
+
+| Exercise | Endpoint (controller) | You edit (service) |
+|---|---|---|
+| 1 | `PlanCatalogController` `/ex1/...` | `ManualPlanService`, `AnnotatedPlanService`, `config/CacheConfig` |
+| 2 | `PlanPriceController` `/ex2/...` | `PlanPriceService`, `AnnotatedPlanPriceService` |
+| 3 | `AccountController` `/ex3/...` | `HashAccountCache` (compare with `StringAccountCache`) |
+| Bonus A | `LeaderboardController` `/bonus-a/...` | `LeaderboardService` |
+| Bonus B | (tests only) | `SessionStore` |
+
+Caching lives in the **service** layer: the controller doesn't know there's a cache, and the repository doesn't
+either. The service decides "Redis first, database on a miss".
 
 - **Every exercise stands on its own.** Didn't finish Exercise 1? Go straight to Exercise 2. Nothing breaks.
 - Your work is marked with `// TODO (Exercise N, step X)`. Search for `TODO (Exercise 1` to find them all.
@@ -223,7 +239,7 @@ data. Short TTL: fresher data, more database traffic.
 
 ### 4. Tasks
 
-**Step 1: design the key.** In [`ex1/ManualPlanService.java`](src/main/java/com/tdp/telco/ex1/ManualPlanService.java),
+**Step 1: design the key.** In [`service/ManualPlanService.java`](src/main/java/com/tdp/telco/service/ManualPlanService.java),
 implement `planKey(id)`. Write down *why* in a comment.
 
 ```bash
@@ -246,7 +262,7 @@ Restart the app and run `./scripts/time-it.sh /ex1/plans/basic` again. Notice th
 
 **Step 3: let Spring do it.** Now the same thing with Spring's cache abstraction:
 
-- **3a.** In [`ex1/AnnotatedPlanService.java`](src/main/java/com/tdp/telco/ex1/AnnotatedPlanService.java), annotate
+- **3a.** In [`service/AnnotatedPlanService.java`](src/main/java/com/tdp/telco/service/AnnotatedPlanService.java), annotate
   `getPlan` with `@Cacheable`, using the cache name `"plans"` and the plan id as the key (`key = "#id"`).
 - **3b.** `@Cacheable` has no TTL attribute. In [`config/CacheConfig.java`](src/main/java/com/tdp/telco/config/CacheConfig.java),
   add `.entryTtl(...)` to the `"plans"` cache configuration.
@@ -299,13 +315,13 @@ All green? Then:
 ### 8. Stuck?
 
 ```bash
-git diff main origin/solutions -- src/main/java/com/tdp/telco/ex1 src/main/java/com/tdp/telco/config
+git diff main origin/solutions -- '*/ManualPlanService.java' '*/AnnotatedPlanService.java' '*/CacheConfig.java'
 ```
 
 That shows exactly what changes. To take the whole solution for this exercise:
 
 ```bash
-git checkout origin/solutions -- src/main/java/com/tdp/telco/ex1 src/main/java/com/tdp/telco/config
+git checkout origin/solutions -- '*/ManualPlanService.java' '*/AnnotatedPlanService.java' '*/CacheConfig.java'
 ```
 
 <details>
@@ -374,8 +390,8 @@ path someone forgot.
 
 ### 4. Tasks
 
-All in [`ex2/PlanPriceService.java`](src/main/java/com/tdp/telco/ex2/PlanPriceService.java) and
-[`ex2/AnnotatedPlanPriceService.java`](src/main/java/com/tdp/telco/ex2/AnnotatedPlanPriceService.java).
+All in [`service/PlanPriceService.java`](src/main/java/com/tdp/telco/service/PlanPriceService.java) and
+[`service/AnnotatedPlanPriceService.java`](src/main/java/com/tdp/telco/service/AnnotatedPlanPriceService.java).
 
 **Step 1: invalidate on write.** In `updatePriceAndEvict`: update the database (already there), **then** delete the cached copy:
 `redis.delete(key)` → `DEL key`.
@@ -436,7 +452,7 @@ TTL telco:plan:unlimited                  -> still counting down
 ### 8. Stuck?
 
 ```bash
-git diff main origin/solutions -- src/main/java/com/tdp/telco/ex2
+git diff main origin/solutions -- '*/PlanPriceService.java' '*/AnnotatedPlanPriceService.java'
 ```
 
 <details>
@@ -457,7 +473,7 @@ git diff main origin/solutions -- src/main/java/com/tdp/telco/ex2
 A customer account has name, address, current plan and **data used this month**. The first fields almost never
 change. Data usage changes **constantly**: every few minutes per customer, from many network events at once.
 
-The current cache, [`ex3/StringAccountCache.java`](src/main/java/com/tdp/telco/ex3/StringAccountCache.java)
+The current cache, [`service/StringAccountCache.java`](src/main/java/com/tdp/telco/service/StringAccountCache.java)
 (provided and working), stores the whole account as **one JSON string**. To record 10MB of usage it has to
 GET the whole JSON, parse it, change one number, serialize it and SET the whole thing back.
 
@@ -499,7 +515,7 @@ inside Redis as one step, and no update can be lost.
 
 ### 4. Tasks
 
-All in [`ex3/HashAccountCache.java`](src/main/java/com/tdp/telco/ex3/HashAccountCache.java). The conversion
+All in [`service/HashAccountCache.java`](src/main/java/com/tdp/telco/service/HashAccountCache.java). The conversion
 to and from hash fields is done for you in `AccountFields`.
 
 **Step 1: cache the account as a hash.** Cache-aside again, with different operations:
@@ -561,7 +577,7 @@ GET telco:account-json:acc-1001       -> one JSON blob
 ### 8. Stuck?
 
 ```bash
-git diff main origin/solutions -- src/main/java/com/tdp/telco/ex3
+git diff main origin/solutions -- '*/HashAccountCache.java'
 ```
 
 <details>
@@ -614,7 +630,7 @@ Redis keep the *ranking itself* up to date?
 `ZINCRBY` adds to a score atomically in O(log N), and `ZREVRANGE ... WITHSCORES` reads the top N. This isn't a
 copy of a query result. It's a live structure, updated on every write. It has no TTL. If it's lost, rebuild it once from the database.
 
-**Tasks.** In [`bonusa/LeaderboardService.java`](src/main/java/com/tdp/telco/bonusa/LeaderboardService.java):
+**Tasks.** In [`service/LeaderboardService.java`](src/main/java/com/tdp/telco/service/LeaderboardService.java):
 
 1. `recordSignup`: `redis.opsForZSet().incrementScore(LEADERBOARD_KEY, planId, 1)` → `ZINCRBY key 1 planId`
 2. `topPlans`: `redis.opsForZSet().reverseRangeWithScores(LEADERBOARD_KEY, 0, limit - 1)` → `ZREVRANGE key 0 N-1 WITHSCORES`
@@ -639,7 +655,7 @@ repair that? Is that worth it for a "popular plans" widget? Would it be for a bi
 **Same idea in your Nest project.** `await redis.zincrby(key, 1, planId)`, then
 `await redis.zrevrange(key, 0, 2, 'WITHSCORES')` (it returns a flat `[member, score, member, score...]` array).
 
-**Stuck?** `git diff main origin/solutions -- src/main/java/com/tdp/telco/bonusa`
+**Stuck?** `git diff main origin/solutions -- '*/LeaderboardService.java'`
 
 ---
 
@@ -680,7 +696,7 @@ LRU/LFU in Redis is *approximate*: it samples a few keys instead of checking all
    With `allkeys-lru` you should see **Flags still there: 0 / 200**. Your feature flags are gone!
 2. Change `maxmemory-policy` to `volatile-lru` in `redis/bonus-b.conf` and run the lab again. Now look at
    **Writes refused**. Why? (Hint: which keys have a TTL right now?) Then fix it: in
-   [`bonusb/SessionStore.java`](src/main/java/com/tdp/telco/bonusb/SessionStore.java), give sessions their TTL
+   [`service/SessionStore.java`](src/main/java/com/tdp/telco/service/SessionStore.java), give sessions their TTL
    (TODO step 2). Run the lab again.
 3. Try `volatile-ttl`, `allkeys-lfu` and `noeviction`. Predict the result before each run.
 
@@ -701,7 +717,7 @@ keys? What's the risk of `allkeys-lru` if you also keep data in Redis that *isn'
 `command: redis-server --maxmemory 100mb --maxmemory-policy volatile-lru`, and give every cache key a TTL
 (`SET key value EX ...`, or `ttl` in cache-manager).
 
-**Stuck?** `git diff main origin/solutions -- src/main/java/com/tdp/telco/bonusb`
+**Stuck?** `git diff main origin/solutions -- '*/SessionStore.java'`
 
 ---
 

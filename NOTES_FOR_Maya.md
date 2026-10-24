@@ -10,16 +10,27 @@ Things that need **your decision** are marked 🟡.
 | `main` | Start point for trainees: README, Docker Compose, the app with every exercise as TODOs. 23 tests fail on purpose, each with a hint. |
 | `solutions` | Everything solved, with comments explaining each decision. All 31 tests pass. |
 
-### Why one branch with packages instead of a branch per checkpoint
+### Why one branch instead of a branch per checkpoint
 
 You agreed to this before I started building. Recorded here so the reasoning stays with the repo:
 
-- **Exercises are independent.** Each package (`ex1`, `ex2`, `ex3`, `bonusa`, `bonusb`) has its own starting code
-  that works without the previous exercise being finished. A trainee stuck on Exercise 1 at minute 18 moves on
-  to Exercise 2 with no git commands, no stashing and no lost work.
-- **"Stuck?" is one command:** `git diff main origin/solutions -- <package>` shows exactly the lines to change, and
-  `git checkout origin/solutions -- <package>` takes the solution for one exercise only.
+- **Exercises are independent.** Each exercise has its own service classes, with starting code that works
+  without the previous exercise being finished. A trainee stuck on Exercise 1 at minute 18 moves on to
+  Exercise 2 with no git commands, no stashing and no lost work.
+- **"Stuck?" is one command:** `git diff main origin/solutions -- '*/ManualPlanService.java' ...` shows exactly
+  the lines to change, and `git checkout origin/solutions -- <same files>` takes the solution for one exercise only.
 - **Tests per step** (`Ex1Step2CacheAsideTest`, ...) give the same "checkpoint" feedback the branches would have.
+
+### Layout: layered Spring MVC
+
+At your request, the code follows the standard layers: `controller`, `service`, `repository`, `entity`, `dto`,
+`config` and `exception`. All trainee TODOs are in `service` (plus one in `config/CacheConfig`), which also
+teaches where caching belongs: in the service layer, invisible to controllers and repositories.
+
+- **No separate `dao` package.** In Spring a `@Repository` *is* the DAO (data access object), so having both
+  would be two names for the same role. The `repository` package is the slow database, the source of truth.
+- **Tests are grouped by exercise** (`ex1/`, `ex2/`, ...), not by layer, because trainees run them per exercise and step.
+  The few members the tests need (e.g. `planKey`, `LEADERBOARD_KEY`) are `public` for that reason.
 
 ## Verified
 
