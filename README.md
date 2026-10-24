@@ -285,13 +285,13 @@ All green? Then:
 ### 8. Stuck?
 
 ```bash
-git diff main solutions -- src/main/java/com/tdp/telco/ex1 src/main/java/com/tdp/telco/config
+git diff main origin/solutions -- src/main/java/com/tdp/telco/ex1 src/main/java/com/tdp/telco/config
 ```
 
 That shows exactly what changes. To take the whole solution for this exercise:
 
 ```bash
-git checkout solutions -- src/main/java/com/tdp/telco/ex1 src/main/java/com/tdp/telco/config
+git checkout origin/solutions -- src/main/java/com/tdp/telco/ex1 src/main/java/com/tdp/telco/config
 ```
 
 <details>
@@ -422,7 +422,7 @@ TTL telco:plan:unlimited                  -> still counting down
 ### 8. Stuck?
 
 ```bash
-git diff main solutions -- src/main/java/com/tdp/telco/ex2
+git diff main origin/solutions -- src/main/java/com/tdp/telco/ex2
 ```
 
 <details>
@@ -547,7 +547,7 @@ GET telco:account-json:acc-1001       -> one JSON blob
 ### 8. Stuck?
 
 ```bash
-git diff main solutions -- src/main/java/com/tdp/telco/ex3
+git diff main origin/solutions -- src/main/java/com/tdp/telco/ex3
 ```
 
 <details>
@@ -625,7 +625,7 @@ repair that? Is that worth it for a "popular plans" widget? Would it be for a bi
 **Same idea in your Nest project.** `await redis.zincrby(key, 1, planId)`, then
 `await redis.zrevrange(key, 0, 2, 'WITHSCORES')` (it returns a flat `[member, score, member, score...]` array).
 
-**Stuck?** `git diff main solutions -- src/main/java/com/tdp/telco/bonusa`
+**Stuck?** `git diff main origin/solutions -- src/main/java/com/tdp/telco/bonusa`
 
 ---
 
@@ -686,7 +686,7 @@ keys? What's the risk of `allkeys-lru` if you also keep data in Redis that *isn'
 `command: redis-server --maxmemory 100mb --maxmemory-policy volatile-lru`, and give every cache key a TTL
 (`SET key value EX ...`, or `ttl` in cache-manager).
 
-**Stuck?** `git diff main solutions -- src/main/java/com/tdp/telco/bonusb`
+**Stuck?** `git diff main origin/solutions -- src/main/java/com/tdp/telco/bonusb`
 
 ---
 

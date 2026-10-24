@@ -17,8 +17,8 @@ You agreed to this before I started building. Recorded here so the reasoning sta
 - **Exercises are independent.** Each package (`ex1`, `ex2`, `ex3`, `bonusa`, `bonusb`) has its own starting code
   that works without the previous exercise being finished. A trainee stuck on Exercise 1 at minute 18 moves on
   to Exercise 2 with no git commands, no stashing and no lost work.
-- **"Stuck?" is one command:** `git diff main solutions -- <package>` shows exactly the lines to change, and
-  `git checkout solutions -- <package>` takes the solution for one exercise only.
+- **"Stuck?" is one command:** `git diff main origin/solutions -- <package>` shows exactly the lines to change, and
+  `git checkout origin/solutions -- <package>` takes the solution for one exercise only.
 - **Tests per step** (`Ex1Step2CacheAsideTest`, ...) give the same "checkpoint" feedback the branches would have.
 
 ## Verified
@@ -59,7 +59,7 @@ step and one or two app restarts:
 | 3 | 13–16 min | Step 1 is the biggest edit (~8 lines). The string-vs-hash experiment is the "aha". |
 
 🟡 **Suggestion:** at minute 18 and minute 33, say out loud "move on, take the solution with `git checkout
-solutions -- src/main/java/com/tdp/telco/exN`". Because the exercises are independent, nobody falls behind for good.
+origin/solutions -- src/main/java/com/tdp/telco/exN`". Because the exercises are independent, nobody falls behind for good.
 
 🟡 **Pairing:** consider pairs for the core exercises. The "Think first" and "Reflect" questions work much better
 when spoken out loud, and pairs get stuck less.
