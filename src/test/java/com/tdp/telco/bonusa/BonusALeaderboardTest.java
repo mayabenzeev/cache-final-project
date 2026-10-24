@@ -5,8 +5,8 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import com.tdp.telco.WorkshopTest;
-import com.tdp.telco.dto.PlanRankResponse;
-import com.tdp.telco.service.LeaderboardService;
+import com.tdp.telco.bonusa.dto.PlanRankResponse;
+import com.tdp.telco.bonusa.service.LeaderboardService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.connection.DataType;

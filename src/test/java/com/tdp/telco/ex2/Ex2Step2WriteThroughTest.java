@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 import org.junit.jupiter.api.Test;
 
 import com.tdp.telco.WorkshopTest;
-import com.tdp.telco.service.PlanPriceService;
+import com.tdp.telco.ex2.service.PlanPriceService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 

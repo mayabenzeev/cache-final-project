@@ -7,8 +7,8 @@ import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
 
 import com.tdp.telco.WorkshopTest;
-import com.tdp.telco.entity.Account;
-import com.tdp.telco.service.HashAccountCache;
+import com.tdp.telco.common.entity.Account;
+import com.tdp.telco.ex3.service.HashAccountCache;
 
 import org.springframework.beans.factory.annotation.Autowired;
 

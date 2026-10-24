@@ -7,8 +7,8 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import com.tdp.telco.TestcontainersConfiguration;
-import com.tdp.telco.service.FeatureFlagStore;
-import com.tdp.telco.service.SessionStore;
+import com.tdp.telco.bonusb.service.FeatureFlagStore;
+import com.tdp.telco.bonusb.service.SessionStore;
 
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.StringRedisTemplate;

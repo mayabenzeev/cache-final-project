@@ -3,8 +3,8 @@ package com.tdp.telco.ex1;
 import org.junit.jupiter.api.Test;
 
 import com.tdp.telco.WorkshopTest;
-import com.tdp.telco.entity.Plan;
-import com.tdp.telco.service.AnnotatedPlanService;
+import com.tdp.telco.common.entity.Plan;
+import com.tdp.telco.ex1.service.AnnotatedPlanService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
