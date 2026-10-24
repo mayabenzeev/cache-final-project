@@ -42,10 +42,13 @@ eat 15 of them, so do it now.
 | Docker Desktop (or Docker Engine + Compose v2) | any recent | `docker compose version` |
 | Git | any | `git --version` |
 | An IDE | IntelliJ IDEA recommended (it runs `requests.http` out of the box) | |
+| RedisInsight desktop app (the one from the lecture) | any recent | it opens |
 
 No JDK 25? Install [Eclipse Temurin 25](https://adoptium.net/temurin/releases/?version=25), or use
 `brew install --cask temurin@25` on macOS or `sdk install java 25-tem` with SDKMAN. Maven is **not** needed:
 the repo has the Maven wrapper (`./mvnw`).
+
+No RedisInsight? `brew install --cask redis-insight` on macOS, or download it from <https://redis.io/insight/>.
 
 **Then run these, in the repo folder, with Docker running:**
 
@@ -73,7 +76,17 @@ The last command downloads every dependency, starts a throwaway Redis in Docker 
   ✅  Setup OK: Java 25, Spring Boot, Docker and Redis all work.
 ```
 
-If you see that, you're ready. If not, check [Troubleshooting](#troubleshooting) or bring the error to the session.
+**Last step: connect RedisInsight to the workshop Redis.**
+
+```bash
+docker compose up -d redis
+```
+
+In RedisInsight, click **Add Redis database** and enter host `localhost`, port `6379`, database alias
+`telco-workshop`. RedisInsight saves it, so it's ready for the session.
+
+If you see the ✅ and the `telco-workshop` database opens in RedisInsight, you're ready. If not, check
+[Troubleshooting](#troubleshooting) or bring the error to the session.
 
 ---
 
@@ -148,7 +161,8 @@ GET /ex1/plans/basic -> 200 in 3 ms        <- came from Redis
 
 - **redis-cli**: open a second terminal and run `docker compose exec redis redis-cli`. You get a `127.0.0.1:6379>` prompt
   where you can type the commands from this README.
-- **RedisInsight** (visual): open <http://localhost:5540>, accept the terms, and click the **telco-workshop** database.
+- **RedisInsight** (visual): open the desktop app and click the **telco-workshop** database (`localhost:6379`)
+  that you added before the session. Its built-in CLI (bottom of the window) runs the same commands as `redis-cli`.
 
 > You changed code? Stop the app (Ctrl+C) and start it again. The tests don't need the app running:
 > they start their own Redis.
@@ -678,6 +692,7 @@ LRU/LFU in Redis is *approximate*: it samples a few keys instead of checking all
 
 Want to poke at it yourself? `docker compose --profile bonus-b up -d redis-small` starts the same tiny Redis on
 port 6380 (`docker compose exec redis-small redis-cli`, then `INFO memory`, `INFO stats`, `CONFIG GET maxmemory-policy`).
+You can also add it to RedisInsight as a second database: host `localhost`, port `6380`.
 
 **Reflect.** Which policy would you pick for your final project's Redis, and what must then be true about your
 keys? What's the risk of `allkeys-lru` if you also keep data in Redis that *isn't* a cache (like the Bonus A leaderboard)?
@@ -772,7 +787,7 @@ All Spring methods are on `StringRedisTemplate redis`. Try any command in `redis
 | `release version 25 not supported` / `invalid target release` | Maven is using an older JDK. `java -version` must say 25. Set `JAVA_HOME` to your JDK 25. |
 | `Port 6379 is already allocated` | Another Redis is running. Stop it (`brew services stop redis`, or `docker ps` and stop the container). |
 | App starts but `Connection refused` to Redis | Run `docker compose up -d redis` yourself and restart the app. |
-| RedisInsight shows no database | Accept the terms first, then refresh. Or add it by hand: host `redis`, port `6379`. |
+| RedisInsight can't connect | Check Redis is running (`docker compose up -d redis`). Use host `localhost`, port `6379`, and no username or password. |
 | Changed the code, nothing changed | Restart the app. Tests always use the latest code. |
 | A test passes in the IDE but you want the Maven output | `./mvnw test -Dtest=ClassName` |
 | Old cached data confuses you | In `redis-cli`: `FLUSHALL` (deletes everything in your local Redis). |
