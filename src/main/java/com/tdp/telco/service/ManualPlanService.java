@@ -1,12 +1,12 @@
-package com.tdp.telco.ex1;
+package com.tdp.telco.service;
 
 import java.time.Duration;
 
 import tools.jackson.databind.json.JsonMapper;
 
-import com.tdp.telco.data.NotFoundException;
-import com.tdp.telco.data.Plan;
-import com.tdp.telco.data.PlanRepository;
+import com.tdp.telco.entity.Plan;
+import com.tdp.telco.exception.NotFoundException;
+import com.tdp.telco.repository.PlanRepository;
 
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -53,7 +53,7 @@ public class ManualPlanService {
 	// - "telco" namespaces us if another service shares this Redis
 	// - "plan" prevents collisions with other entities (telco:account:acc-1001)
 	// - readable in redis-cli, and easy to find with SCAN telco:plan:*
-	String planKey(String id) {
+	public String planKey(String id) {
 		return "telco:plan:" + id;
 	}
 

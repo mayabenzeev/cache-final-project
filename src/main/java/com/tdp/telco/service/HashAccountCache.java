@@ -1,11 +1,11 @@
-package com.tdp.telco.ex3;
+package com.tdp.telco.service;
 
 import java.time.Duration;
 import java.util.Map;
 
-import com.tdp.telco.data.Account;
-import com.tdp.telco.data.AccountRepository;
-import com.tdp.telco.data.NotFoundException;
+import com.tdp.telco.entity.Account;
+import com.tdp.telco.exception.NotFoundException;
+import com.tdp.telco.repository.AccountRepository;
 
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -65,7 +65,7 @@ public class HashAccountCache implements AccountCache {
 		}
 	}
 
-	String key(String id) {
+	public String key(String id) {
 		return "telco:account:" + id;
 	}
 

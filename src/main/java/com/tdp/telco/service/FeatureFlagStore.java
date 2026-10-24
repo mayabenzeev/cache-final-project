@@ -1,4 +1,4 @@
-package com.tdp.telco.bonusb;
+package com.tdp.telco.service;
 
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
@@ -24,7 +24,7 @@ public class FeatureFlagStore {
 		return redis.opsForValue().get(key(name));
 	}
 
-	static String key(String name) {
+	public static String key(String name) {
 		return "telco:flag:" + name;
 	}
 

@@ -5,7 +5,8 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import com.tdp.telco.WorkshopTest;
-import com.tdp.telco.bonusa.LeaderboardService.PlanRank;
+import com.tdp.telco.dto.PlanRankResponse;
+import com.tdp.telco.service.LeaderboardService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.connection.DataType;
@@ -34,11 +35,11 @@ class BonusALeaderboardTest extends WorkshopTest {
 		signUp("basic", 5);
 		signUp("family-4", 1);
 
-		List<PlanRank> top = leaderboard.topPlans(10);
+		List<PlanRankResponse> top = leaderboard.topPlans(10);
 
 		assertThat(top)
 			.as("Use opsForZSet().reverseRangeWithScores(key, 0, limit - 1): highest score first")
-			.containsExactly(new PlanRank("basic", 5), new PlanRank("unlimited", 3), new PlanRank("family-4", 1));
+			.containsExactly(new PlanRankResponse("basic", 5), new PlanRankResponse("unlimited", 3), new PlanRankResponse("family-4", 1));
 	}
 
 	@Test
@@ -49,7 +50,7 @@ class BonusALeaderboardTest extends WorkshopTest {
 
 		assertThat(leaderboard.topPlans(2))
 			.as("Redis ranges are inclusive: for the top 2, ask for indexes 0..1")
-			.containsExactly(new PlanRank("basic", 5), new PlanRank("unlimited", 3));
+			.containsExactly(new PlanRankResponse("basic", 5), new PlanRankResponse("unlimited", 3));
 	}
 
 	private void signUp(String planId, int times) {

@@ -3,6 +3,7 @@ package com.tdp.telco.ex1;
 import org.junit.jupiter.api.Test;
 
 import com.tdp.telco.WorkshopTest;
+import com.tdp.telco.service.ManualPlanService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 

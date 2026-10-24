@@ -1,6 +1,6 @@
-package com.tdp.telco.ex3;
+package com.tdp.telco.service;
 
-import com.tdp.telco.data.Account;
+import com.tdp.telco.entity.Account;
 
 /**
  * Two implementations of the same account cache, so you can compare them:

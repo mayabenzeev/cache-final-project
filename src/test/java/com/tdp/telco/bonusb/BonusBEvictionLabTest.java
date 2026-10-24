@@ -7,6 +7,8 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.utility.MountableFile;
 
 import com.tdp.telco.TestcontainersConfiguration;
+import com.tdp.telco.service.FeatureFlagStore;
+import com.tdp.telco.service.SessionStore;
 
 import org.springframework.data.redis.core.StringRedisTemplate;
 

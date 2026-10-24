@@ -1,10 +1,11 @@
-package com.tdp.telco.bonusa;
+package com.tdp.telco.service;
 
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
-import com.tdp.telco.data.SignupRepository;
+import com.tdp.telco.dto.PlanRankResponse;
+import com.tdp.telco.repository.SignupRepository;
 
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
@@ -16,13 +17,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class LeaderboardService {
 
-	public record PlanRank(String planId, long signups) {
-	}
-
 	// One key for the whole leaderboard: member = planId, score = number of sign-ups.
 	// No TTL: this isn't a copy that goes stale, it's kept up to date on every sign-up.
 	// If Redis loses it, rebuild it once from SignupRepository.countByPlan().
-	static final String LEADERBOARD_KEY = "telco:leaderboard:plan-signups";
+	public static final String LEADERBOARD_KEY = "telco:leaderboard:plan-signups";
 
 	private final StringRedisTemplate redis;
 	private final SignupRepository signups;
@@ -38,22 +36,22 @@ public class LeaderboardService {
 		redis.opsForZSet().incrementScore(LEADERBOARD_KEY, planId, 1);
 	}
 
-	public List<PlanRank> topPlans(int limit) {
+	public List<PlanRankResponse> topPlans(int limit) {
 		// ZREVRANGE ... WITHSCORES: highest score first; ranges are inclusive, so 0..limit-1
 		Set<TypedTuple<String>> top = redis.opsForZSet().reverseRangeWithScores(LEADERBOARD_KEY, 0, limit - 1);
 		if (top == null) {
 			return List.of();
 		}
-		return top.stream().map(t -> new PlanRank(t.getValue(), t.getScore().longValue())).toList();
+		return top.stream().map(t -> new PlanRankResponse(t.getValue(), t.getScore().longValue())).toList();
 	}
 
 	/** Provided: the "before" version - an expensive GROUP BY on every request. */
-	public List<PlanRank> topPlansFromDatabase(int limit) {
+	public List<PlanRankResponse> topPlansFromDatabase(int limit) {
 		return signups.countByPlan()
 			.entrySet()
 			.stream()
-			.map(e -> new PlanRank(e.getKey(), e.getValue()))
-			.sorted(Comparator.comparingLong(PlanRank::signups).reversed())
+			.map(e -> new PlanRankResponse(e.getKey(), e.getValue()))
+			.sorted(Comparator.comparingLong(PlanRankResponse::signups).reversed())
 			.limit(limit)
 			.toList();
 	}

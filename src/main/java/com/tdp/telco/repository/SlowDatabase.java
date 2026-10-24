@@ -1,4 +1,4 @@
-package com.tdp.telco.data;
+package com.tdp.telco.repository;
 
 import java.time.Duration;
 
