@@ -21,16 +21,20 @@ You agreed to this before I started building. Recorded here so the reasoning sta
   the lines to change, and `git checkout origin/solutions -- <same files>` takes the solution for one exercise only.
 - **Tests per step** (`Ex1Step2CacheAsideTest`, ...) give the same "checkpoint" feedback the branches would have.
 
-### Layout: layered Spring MVC
+### Layout: one folder per exercise, layers inside
 
-At your request, the code follows the standard layers: `controller`, `service`, `repository`, `entity`, `dto`,
-`config` and `exception`. All trainee TODOs are in `service` (plus one in `config/CacheConfig`), which also
-teaches where caching belongs: in the service layer, invisible to controllers and repositories.
+At your request: `ex1/`, `ex2/`, `ex3/`, `bonusa/` and `bonusb/` each contain their own `controller/`, `dto/`
+and `service/` folders, and `common/` holds what all exercises share (`entity/`, `repository/`, `exception/`,
+`config/`). A trainee opens one folder per exercise, and their TODOs are always in its `service/` folder,
+plus one in `common/config/CacheConfig` for Exercise 1. That also teaches where caching belongs: in the service
+layer, invisible to controllers and repositories.
 
 - **No separate `dao` package.** In Spring a `@Repository` *is* the DAO (data access object), so having both
-  would be two names for the same role. The `repository` package is the slow database, the source of truth.
-- **Tests are grouped by exercise** (`ex1/`, `ex2/`, ...), not by layer, because trainees run them per exercise and step.
-  The few members the tests need (e.g. `planKey`, `LEADERBOARD_KEY`) are `public` for that reason.
+  would be two names for the same role. `common/repository` is the slow database, the source of truth.
+- **`CacheConfig` stays in `common/config`** even though Exercise 1 edits it, because Exercise 2's annotations
+  use the same `"plans"` cache configuration.
+- **Tests mirror the exercise folders** (`ex1/`, `ex2/`, ...). The few members the tests need from the
+  `service` subpackages (e.g. `planKey`, `LEADERBOARD_KEY`) are `public` for that reason.
 
 ## Verified
 
