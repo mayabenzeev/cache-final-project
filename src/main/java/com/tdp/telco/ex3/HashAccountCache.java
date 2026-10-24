@@ -1,6 +1,7 @@
 package com.tdp.telco.ex3;
 
 import java.time.Duration;
+import java.util.Map;
 
 import com.tdp.telco.data.Account;
 import com.tdp.telco.data.AccountRepository;
@@ -17,7 +18,7 @@ public class HashAccountCache implements AccountCache {
 
 	static final Duration ACCOUNT_TTL = Duration.ofMinutes(30);
 
-	private final StringRedisTemplate redis; // redis.opsForHash() -> HSET / HGET / HGETALL / HINCRBY
+	private final StringRedisTemplate redis;
 	private final AccountRepository repository;
 
 	public HashAccountCache(StringRedisTemplate redis, AccountRepository repository) {
@@ -27,21 +28,25 @@ public class HashAccountCache implements AccountCache {
 
 	@Override
 	public Account getAccount(String id) {
-		// TODO (Exercise 3, step 1): cache-aside, but with a hash instead of a JSON string
-		// 1. Read all fields: redis.opsForHash().entries(key(id))   (HGETALL)
-		// It returns an EMPTY map (not null) on a miss.
-		// 2. HIT  -> AccountFields.fromHash(fields)
-		// 3. MISS -> load from the repository, then
-		// redis.opsForHash().putAll(key(id), AccountFields.toHash(account))   (HSET)
-		// and give the hash a TTL with redis.expire(key(id), ACCOUNT_TTL)
-		return repository.findById(id).orElseThrow(() -> new NotFoundException("Account", id));
+		// HGETALL returns an empty map (not null) when the key doesn't exist
+		Map<Object, Object> fields = redis.opsForHash().entries(key(id));
+		if (!fields.isEmpty()) {
+			return AccountFields.fromHash(fields);
+		}
+
+		Account account = repository.findById(id).orElseThrow(() -> new NotFoundException("Account", id));
+		redis.opsForHash().putAll(key(id), AccountFields.toHash(account)); // HSET with all fields
+		redis.expire(key(id), ACCOUNT_TTL); // the TTL belongs to the whole hash, not to a field
+		return account;
 	}
 
 	@Override
 	public long getDataUsedMb(String id) {
-		// TODO (Exercise 3, step 2): read ONLY the dataUsedMb field: redis.opsForHash().get(key, field)   (HGET)
-		// The value comes back as a String (or null if the account isn't cached yet - then fall back
-		// to getAccount(id)).
+		// HGET reads one field: no need to load or parse the rest of the account
+		Object used = redis.opsForHash().get(key(id), AccountFields.DATA_USED_MB);
+		if (used != null) {
+			return Long.parseLong((String) used);
+		}
 		return getAccount(id).dataUsedMb();
 	}
 
@@ -49,9 +54,15 @@ public class HashAccountCache implements AccountCache {
 	public void addUsage(String id, long mb) {
 		repository.addUsage(id, mb);
 
-		// TODO (Exercise 3, step 3): update the cached usage in place, atomically, inside Redis:
-		// redis.opsForHash().increment(key, AccountFields.DATA_USED_MB, mb)   (HINCRBY)
-		// Careful: what happens if you increment an account that ISN'T cached yet?
+		// Only touch the cache if the account is cached. HINCRBY on a missing key would create
+		// a half-empty hash containing only dataUsedMb, which getAccount() would then return.
+		// If it's not cached, the next read loads the fresh value from the database anyway.
+		// (A key expiring between hasKey and increment is still possible; a Lua script
+		// would close that gap. Good enough for this workshop.)
+		if (Boolean.TRUE.equals(redis.hasKey(key(id)))) {
+			// HINCRBY is atomic inside Redis: no read-modify-write, no lost updates
+			redis.opsForHash().increment(key(id), AccountFields.DATA_USED_MB, mb);
+		}
 	}
 
 	String key(String id) {

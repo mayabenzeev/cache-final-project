@@ -11,6 +11,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class SessionStore {
 
+	// A session is worthless after the user's idle timeout. The TTL cleans it up on time AND
+	// marks it as evictable under volatile-* eviction policies.
 	static final Duration SESSION_TTL = Duration.ofMinutes(30);
 
 	private final StringRedisTemplate redis;
@@ -20,9 +22,7 @@ public class SessionStore {
 	}
 
 	public void saveSession(String sessionId, String payload) {
-		// TODO (Bonus B, step 2): sessions are stored forever. Give them SESSION_TTL.
-		// Besides cleaning up on time, how does a TTL change what the eviction policy may delete?
-		redis.opsForValue().set(key(sessionId), payload);
+		redis.opsForValue().set(key(sessionId), payload, SESSION_TTL);
 	}
 
 	public String getSession(String sessionId) {

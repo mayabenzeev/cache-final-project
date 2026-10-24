@@ -1,5 +1,7 @@
 package com.tdp.telco.config;
 
+import java.time.Duration;
+
 import tools.jackson.databind.json.JsonMapper;
 
 import com.tdp.telco.data.Plan;
@@ -28,10 +30,9 @@ public class CacheConfig {
 	RedisCacheManagerBuilderCustomizer plansCacheConfig(JsonMapper jsonMapper, RedisConnectionFactory connectionFactory) {
 		RedisCacheConfiguration plans = RedisCacheConfiguration.defaultCacheConfig()
 			// Store plans as readable JSON instead of Java-serialized bytes
-			.serializeValuesWith(SerializationPair.fromSerializer(new JacksonJsonRedisSerializer<>(jsonMapper, Plan.class)));
-			// TODO (Exercise 1, step 3b): entries in the "plans" cache never expire right now.
-			// @Cacheable has no TTL attribute - the TTL is configured per cache, here.
-			// Add .entryTtl(...) to the chain above (use the same TTL as your manual cache).
+			.serializeValuesWith(SerializationPair.fromSerializer(new JacksonJsonRedisSerializer<>(jsonMapper, Plan.class)))
+			// Same reasoning as the manual cache in Exercise 1: plans change rarely, so 10 minutes
+			.entryTtl(Duration.ofMinutes(10));
 
 		return builder -> builder
 			// Spring Data Redis 4 sends cache writes in the background by default ("fire and forget").

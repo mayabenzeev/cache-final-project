@@ -6,6 +6,8 @@ import com.tdp.telco.data.NotFoundException;
 import com.tdp.telco.data.Plan;
 import com.tdp.telco.data.PlanRepository;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -27,14 +29,16 @@ public class AnnotatedPlanPriceService {
 		return repository.findById(id).orElseThrow(() -> new NotFoundException("Plan", id));
 	}
 
-	// TODO (Exercise 2, step 3a): invalidate on write with @CacheEvict
-	// (same cache name and key as getPlan). Does Spring evict before or after the method runs?
+	// Runs the method, then DEL plans::{id}. Evicts AFTER the database write by default
+	// (beforeInvocation = false), which is the safe order.
+	@CacheEvict(cacheNames = "plans", key = "#id")
 	public Plan updatePriceAndEvict(String id, BigDecimal newPrice) {
 		return repository.updatePrice(id, newPrice);
 	}
 
-	// TODO (Exercise 2, step 3b): write-through with @CachePut (same cache name and key).
-	// What does Spring put in the cache - the arguments, or the return value?
+	// Always runs the method, then SETs the RETURNED value into plans::{id}.
+	// That's why the method must return the updated Plan, not void.
+	@CachePut(cacheNames = "plans", key = "#id")
 	public Plan updatePriceWriteThrough(String id, BigDecimal newPrice) {
 		return repository.updatePrice(id, newPrice);
 	}

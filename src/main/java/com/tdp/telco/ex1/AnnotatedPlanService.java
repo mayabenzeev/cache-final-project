@@ -4,6 +4,7 @@ import com.tdp.telco.data.NotFoundException;
 import com.tdp.telco.data.Plan;
 import com.tdp.telco.data.PlanRepository;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 /**
@@ -18,9 +19,9 @@ public class AnnotatedPlanService {
 		this.repository = repository;
 	}
 
-	// TODO (Exercise 1, step 3a): make Spring cache this method's result.
-	// Annotate it with @Cacheable, using the cache named "plans" and the plan id as the key.
-	// Then compare: what does Spring now do for you that you wrote by hand in ManualPlanService?
+	// Spring does GET plans::{id} -> on miss call this method -> SET plans::{id} with the
+	// cache's TTL (configured in CacheConfig). Exactly what ManualPlanService does by hand.
+	@Cacheable(cacheNames = "plans", key = "#id")
 	public Plan getPlan(String id) {
 		return repository.findById(id).orElseThrow(() -> new NotFoundException("Plan", id));
 	}

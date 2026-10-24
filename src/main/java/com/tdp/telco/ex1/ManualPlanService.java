@@ -17,13 +17,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class ManualPlanService {
 
-	// TODO (Exercise 1, step 2): choose a TTL for plans and write down WHY in this comment.
-	// Duration.ZERO is only a placeholder - Redis rejects it.
-	static final Duration PLAN_TTL = Duration.ZERO;
+	// Plans change a few times a year and a few minutes of a stale price is acceptable.
+	// 10 minutes gives a near-100% hit rate; Exercise 2 handles price changes explicitly,
+	// so the TTL is only a safety net.
+	static final Duration PLAN_TTL = Duration.ofMinutes(10);
 
-	private final StringRedisTemplate redis; // redis.opsForValue() -> GET / SET on string values
-	private final JsonMapper json; // json.writeValueAsString(plan) / json.readValue(text, Plan.class)
-	private final PlanRepository repository; // the slow source of truth (~1s per read)
+	private final StringRedisTemplate redis;
+	private final JsonMapper json;
+	private final PlanRepository repository;
 
 	public ManualPlanService(StringRedisTemplate redis, JsonMapper json, PlanRepository repository) {
 		this.redis = redis;
@@ -32,19 +33,28 @@ public class ManualPlanService {
 	}
 
 	public Plan getPlan(String id) {
-		// TODO (Exercise 1, step 2): implement cache-aside
-		// 1. Look in Redis first: redis.opsForValue().get(planKey(id))
-		// 2. HIT  -> turn the JSON back into a Plan and return it
-		// 3. MISS -> load from the repository (below), store it as JSON WITH a TTL:
-		// redis.opsForValue().set(key, value, PLAN_TTL), then return it
-		return repository.findById(id).orElseThrow(() -> new NotFoundException("Plan", id));
+		String key = planKey(id);
+
+		// 1. Look in the cache first
+		String cached = redis.opsForValue().get(key);
+		if (cached != null) {
+			return json.readValue(cached, Plan.class); // HIT
+		}
+
+		// 2. MISS: go to the source of truth
+		Plan plan = repository.findById(id).orElseThrow(() -> new NotFoundException("Plan", id));
+
+		// 3. Populate the cache for the next reader, with a TTL
+		redis.opsForValue().set(key, json.writeValueAsString(plan), PLAN_TTL);
+		return plan;
 	}
 
-	// TODO (Exercise 1, step 1): design the cache key for a plan.
-	// Think: what else could live in this Redis? How would you find all plan keys?
-	// Write down in a comment why you chose this format.
+	// <app>:<entity>:<id>
+	// - "telco" namespaces us if another service shares this Redis
+	// - "plan" prevents collisions with other entities (telco:account:acc-1001)
+	// - readable in redis-cli, and easy to find with SCAN telco:plan:*
 	String planKey(String id) {
-		return id;
+		return "telco:plan:" + id;
 	}
 
 }

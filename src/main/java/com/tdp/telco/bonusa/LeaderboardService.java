@@ -2,10 +2,12 @@ package com.tdp.telco.bonusa;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 
 import com.tdp.telco.data.SignupRepository;
 
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
 import org.springframework.stereotype.Service;
 
 /**
@@ -18,9 +20,11 @@ public class LeaderboardService {
 	}
 
 	// One key for the whole leaderboard: member = planId, score = number of sign-ups.
+	// No TTL: this isn't a copy that goes stale, it's kept up to date on every sign-up.
+	// If Redis loses it, rebuild it once from SignupRepository.countByPlan().
 	static final String LEADERBOARD_KEY = "telco:leaderboard:plan-signups";
 
-	private final StringRedisTemplate redis; // redis.opsForZSet() -> ZINCRBY / ZREVRANGE
+	private final StringRedisTemplate redis;
 	private final SignupRepository signups;
 
 	public LeaderboardService(StringRedisTemplate redis, SignupRepository signups) {
@@ -30,15 +34,17 @@ public class LeaderboardService {
 
 	public void recordSignup(String customerId, String planId) {
 		signups.save(customerId, planId);
-		// TODO (Bonus A, step 1): add 1 to this plan's score in the sorted set:
-		// redis.opsForZSet().incrementScore(LEADERBOARD_KEY, planId, 1)   (ZINCRBY)
+		// ZINCRBY: atomic, O(log N), and the set stays sorted
+		redis.opsForZSet().incrementScore(LEADERBOARD_KEY, planId, 1);
 	}
 
 	public List<PlanRank> topPlans(int limit) {
-		// TODO (Bonus A, step 2): read the top `limit` plans, highest score first:
-		// redis.opsForZSet().reverseRangeWithScores(LEADERBOARD_KEY, start, end)   (ZREVRANGE ... WITHSCORES)
-		// Redis ranges are inclusive. Map each TypedTuple to new PlanRank(value, score).
-		return List.of();
+		// ZREVRANGE ... WITHSCORES: highest score first; ranges are inclusive, so 0..limit-1
+		Set<TypedTuple<String>> top = redis.opsForZSet().reverseRangeWithScores(LEADERBOARD_KEY, 0, limit - 1);
+		if (top == null) {
+			return List.of();
+		}
+		return top.stream().map(t -> new PlanRank(t.getValue(), t.getScore().longValue())).toList();
 	}
 
 	/** Provided: the "before" version - an expensive GROUP BY on every request. */

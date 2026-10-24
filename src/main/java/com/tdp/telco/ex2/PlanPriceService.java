@@ -43,20 +43,20 @@ public class PlanPriceService {
 
 	/** Strategy A: invalidate on write (explicit invalidation). */
 	public Plan updatePriceAndEvict(String id, BigDecimal newPrice) {
-		// BUG: the database is updated, but the cached copy still has the old price
-		// for up to 10 minutes.
-		// TODO (Exercise 2, step 1): after updating the source of truth, delete the cached copy
-		// so the next read is a MISS and reloads the new price. Use redis.delete(key).
-		// Think: does it matter whether you delete BEFORE or AFTER the database update?
-		return repository.updatePrice(id, newPrice);
+		// Order matters: update the source of truth first, THEN delete the copy.
+		// Deleting first leaves a window where a reader misses, reads the OLD price
+		// from the database and puts it back in the cache.
+		Plan updated = repository.updatePrice(id, newPrice);
+		redis.delete(planKey(id));
+		return updated;
 	}
 
 	/** Strategy B: write-through - the write path also refreshes the cache. */
 	public Plan updatePriceWriteThrough(String id, BigDecimal newPrice) {
-		// TODO (Exercise 2, step 2): after updating the source of truth, write the UPDATED plan
-		// into the cache (as JSON) so the next read is still a HIT with the new price.
-		// Watch out: a SET without a TTL removes the key's existing TTL.
-		return repository.updatePrice(id, newPrice);
+		Plan updated = repository.updatePrice(id, newPrice);
+		// Keep the TTL as a safety net in case some other write path forgets to update the cache
+		redis.opsForValue().set(planKey(id), json.writeValueAsString(updated), PLAN_TTL);
+		return updated;
 	}
 
 	String planKey(String id) {
