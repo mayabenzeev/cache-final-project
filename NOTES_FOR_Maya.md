@@ -29,7 +29,9 @@ You agreed to this before I started building. Recorded here so the reasoning sta
 - `solutions`: all 31 tests pass. I ran the full suite several times to check for flakiness (see the async cache writes below).
 - The real app on the Docker Compose Redis: ~1000 ms on a miss, ~5–10 ms on a hit, price updates visible right
   after the PUT, and hashes and sorted sets visible in `redis-cli`.
-- Spring Boot's Docker Compose support starts `redis` and `redisinsight` automatically on `./mvnw spring-boot:run`.
+- Spring Boot's Docker Compose support starts `redis` automatically on `./mvnw spring-boot:run`.
+- Trainees use the **RedisInsight desktop app** from the lecture (slide 114), connected to `localhost:6379`.
+  There's no RedisInsight container, so `docker compose pull` downloads only the 159 MB Redis image.
 - Timings on my machine (M-series Mac): a single-step test run takes ~10 s and an app restart ~9 s.
 
 **Not verified:** Windows, and a corporate network or proxy. See the assumptions below.
@@ -43,7 +45,7 @@ You agreed to this before I started building. Recorded here so the reasoning sta
 | Spring Data Redis | 4.1.2 (via Boot) |
 | Jackson | 3.x (`tools.jackson`, Boot 4's default) |
 | Redis | `redis:8.10.2-alpine` |
-| RedisInsight | `redis/redisinsight:3.8.0` |
+| RedisInsight | desktop app, any recent version (trainees install it themselves) |
 | Testcontainers | 2.0.5 (via Boot) |
 | Maven | 3.10.0 via the wrapper (no Maven install needed) |
 
@@ -99,9 +101,8 @@ I extracted the deck's text and speaker notes and aligned the terminology:
    `docker-compose.yml` and `TestcontainersConfiguration.REDIS_IMAGE` at an internal mirror.
 3. **OS.** Everything works on Windows except `scripts/time-it.sh` (bash). The README gives a PowerShell
    `curl.exe` alternative, and `requests.http` and the app log show timings on any OS.
-4. **RedisInsight terms.** RedisInsight only registers the pre-configured `telco-workshop` database after its
-   EULA is accepted in the UI, so trainees click "accept" once. I didn't auto-accept it for them. If your org is
-   fine with that, add `RI_ACCEPT_TERMS_AND_CONDITIONS: "true"` to the `redisinsight` service.
+4. **RedisInsight desktop app.** I assume everyone still has it from the lecture. "Before the session" lists it
+   with an install command and has trainees add the `telco-workshop` database (`localhost:6379`) at home.
 5. **Domain.** I used the suggested telco domain: plans (`basic`, `unlimited`, ...), accounts (`acc-1001`, ...)
    and sign-ups. The names are invented.
 6. **Repo hosting.** Nothing is pushed anywhere. The repo is local with two branches. Push it to wherever
