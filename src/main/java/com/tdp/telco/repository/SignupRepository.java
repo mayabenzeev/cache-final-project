@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
+import com.tdp.telco.entity.Signup;
+
 import org.springframework.stereotype.Repository;
 
 /**
@@ -12,9 +14,6 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public class SignupRepository {
-
-	public record Signup(String customerId, String planId) {
-	}
 
 	private final SlowDatabase db;
 	private final List<Signup> signups = new CopyOnWriteArrayList<>();

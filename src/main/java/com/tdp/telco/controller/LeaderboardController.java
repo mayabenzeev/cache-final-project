@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
 import com.tdp.telco.dto.PlanRankResponse;
+import com.tdp.telco.dto.SignupRequest;
 import com.tdp.telco.service.LeaderboardService;
 
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,9 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/bonus-a")
 class LeaderboardController {
-
-	record SignupRequest(String customerId, String planId) {
-	}
 
 	// Some plans are more popular than others, so the simulated ranking is interesting
 	private static final String[] WEIGHTED_PLANS = { "unlimited", "unlimited", "unlimited", "unlimited", "basic",

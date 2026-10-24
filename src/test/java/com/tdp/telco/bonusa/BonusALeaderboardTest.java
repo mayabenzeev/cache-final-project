@@ -39,7 +39,8 @@ class BonusALeaderboardTest extends WorkshopTest {
 
 		assertThat(top)
 			.as("Use opsForZSet().reverseRangeWithScores(key, 0, limit - 1): highest score first")
-			.containsExactly(new PlanRankResponse("basic", 5), new PlanRankResponse("unlimited", 3), new PlanRankResponse("family-4", 1));
+			.containsExactly(new PlanRankResponse("basic", 5), new PlanRankResponse("unlimited", 3),
+					new PlanRankResponse("family-4", 1));
 	}
 
 	@Test
