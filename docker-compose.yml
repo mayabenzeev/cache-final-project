@@ -1,11 +1,11 @@
 services:
-  # The cache used by the app (Exercises 1-3 and Bonus A)
+  # Exercises 1-3 and Bonus A
   redis:
     image: redis:8.10.2-alpine
     ports:
       - "6379:6379"
 
-  # Bonus B only: a tiny Redis with a memory limit.
+  # Bonus B: tiny Redis with a memory limit.
   # Start it with: docker compose --profile bonus-b up -d redis-small
   redis-small:
     image: redis:8.10.2-alpine
