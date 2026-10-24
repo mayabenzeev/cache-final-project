@@ -1,8 +1,11 @@
-package com.tdp.telco.ex3;
+package com.tdp.telco.controller;
 
 import java.util.Map;
 
-import com.tdp.telco.data.Account;
+import com.tdp.telco.entity.Account;
+import com.tdp.telco.service.AccountCache;
+import com.tdp.telco.service.HashAccountCache;
+import com.tdp.telco.service.StringAccountCache;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/ex3/accounts")
-class Ex3AccountController {
+class AccountController {
 
 	record UsageEvent(long mb) {
 	}
@@ -26,7 +29,7 @@ class Ex3AccountController {
 	private final HashAccountCache hash;
 	private final StringAccountCache string;
 
-	Ex3AccountController(HashAccountCache hash, StringAccountCache string) {
+	AccountController(HashAccountCache hash, StringAccountCache string) {
 		this.hash = hash;
 		this.string = string;
 	}

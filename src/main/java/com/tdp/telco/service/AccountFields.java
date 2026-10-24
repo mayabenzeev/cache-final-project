@@ -1,9 +1,9 @@
-package com.tdp.telco.ex3;
+package com.tdp.telco.service;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.tdp.telco.data.Account;
+import com.tdp.telco.entity.Account;
 
 /**
  * Converts an Account to and from Redis hash fields. Provided code.
@@ -18,7 +18,7 @@ import com.tdp.telco.data.Account;
  *     dataLimitMb "102400"
  * </pre>
  */
-final class AccountFields {
+public final class AccountFields {
 
 	static final String DATA_USED_MB = "dataUsedMb";
 

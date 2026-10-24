@@ -1,12 +1,12 @@
-package com.tdp.telco.ex3;
+package com.tdp.telco.service;
 
 import java.time.Duration;
 
 import tools.jackson.databind.json.JsonMapper;
 
-import com.tdp.telco.data.Account;
-import com.tdp.telco.data.AccountRepository;
-import com.tdp.telco.data.NotFoundException;
+import com.tdp.telco.entity.Account;
+import com.tdp.telco.exception.NotFoundException;
+import com.tdp.telco.repository.AccountRepository;
 
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -59,7 +59,7 @@ public class StringAccountCache implements AccountCache {
 		redis.opsForValue().set(key(id), json.writeValueAsString(updated), ACCOUNT_TTL);
 	}
 
-	String key(String id) {
+	public String key(String id) {
 		return "telco:account-json:" + id;
 	}
 

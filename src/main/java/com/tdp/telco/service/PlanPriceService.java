@@ -1,13 +1,13 @@
-package com.tdp.telco.ex2;
+package com.tdp.telco.service;
 
 import java.math.BigDecimal;
 import java.time.Duration;
 
 import tools.jackson.databind.json.JsonMapper;
 
-import com.tdp.telco.data.NotFoundException;
-import com.tdp.telco.data.Plan;
-import com.tdp.telco.data.PlanRepository;
+import com.tdp.telco.entity.Plan;
+import com.tdp.telco.exception.NotFoundException;
+import com.tdp.telco.repository.PlanRepository;
 
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -59,7 +59,7 @@ public class PlanPriceService {
 		return repository.updatePrice(id, newPrice);
 	}
 
-	String planKey(String id) {
+	public String planKey(String id) {
 		return "telco:plan:" + id;
 	}
 

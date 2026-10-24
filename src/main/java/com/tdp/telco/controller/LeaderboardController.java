@@ -1,10 +1,11 @@
-package com.tdp.telco.bonusa;
+package com.tdp.telco.controller;
 
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
-import com.tdp.telco.bonusa.LeaderboardService.PlanRank;
+import com.tdp.telco.dto.PlanRankResponse;
+import com.tdp.telco.service.LeaderboardService;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/bonus-a")
-class BonusALeaderboardController {
+class LeaderboardController {
 
 	record SignupRequest(String customerId, String planId) {
 	}
@@ -26,7 +27,7 @@ class BonusALeaderboardController {
 
 	private final LeaderboardService leaderboard;
 
-	BonusALeaderboardController(LeaderboardService leaderboard) {
+	LeaderboardController(LeaderboardService leaderboard) {
 		this.leaderboard = leaderboard;
 	}
 
@@ -47,12 +48,12 @@ class BonusALeaderboardController {
 	}
 
 	@GetMapping("/plans/top")
-	List<PlanRank> top(@RequestParam(defaultValue = "10") int limit) {
+	List<PlanRankResponse> top(@RequestParam(defaultValue = "10") int limit) {
 		return leaderboard.topPlans(limit);
 	}
 
 	@GetMapping("/plans/top-from-db")
-	List<PlanRank> topFromDatabase(@RequestParam(defaultValue = "10") int limit) {
+	List<PlanRankResponse> topFromDatabase(@RequestParam(defaultValue = "10") int limit) {
 		return leaderboard.topPlansFromDatabase(limit);
 	}
 

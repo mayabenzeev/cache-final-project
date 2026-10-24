@@ -1,8 +1,8 @@
-package com.tdp.telco.ex1;
+package com.tdp.telco.service;
 
-import com.tdp.telco.data.NotFoundException;
-import com.tdp.telco.data.Plan;
-import com.tdp.telco.data.PlanRepository;
+import com.tdp.telco.entity.Plan;
+import com.tdp.telco.exception.NotFoundException;
+import com.tdp.telco.repository.PlanRepository;
 
 import org.springframework.stereotype.Service;
 

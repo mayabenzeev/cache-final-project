@@ -1,6 +1,9 @@
-package com.tdp.telco.ex2;
+package com.tdp.telco.controller;
 
-import com.tdp.telco.data.Plan;
+import com.tdp.telco.dto.PriceUpdateRequest;
+import com.tdp.telco.entity.Plan;
+import com.tdp.telco.service.AnnotatedPlanPriceService;
+import com.tdp.telco.service.PlanPriceService;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,12 +19,12 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/ex2")
-class Ex2PlanController {
+class PlanPriceController {
 
 	private final PlanPriceService manual;
 	private final AnnotatedPlanPriceService annotated;
 
-	Ex2PlanController(PlanPriceService manual, AnnotatedPlanPriceService annotated) {
+	PlanPriceController(PlanPriceService manual, AnnotatedPlanPriceService annotated) {
 		this.manual = manual;
 		this.annotated = annotated;
 	}
@@ -32,7 +35,7 @@ class Ex2PlanController {
 	}
 
 	@PutMapping("/plans/{id}/price")
-	Plan updatePrice(@PathVariable String id, @RequestBody PriceUpdate update,
+	Plan updatePrice(@PathVariable String id, @RequestBody PriceUpdateRequest update,
 			@RequestParam(defaultValue = "evict") String strategy) {
 		return isWriteThrough(strategy) ? manual.updatePriceWriteThrough(id, update.monthlyPrice())
 				: manual.updatePriceAndEvict(id, update.monthlyPrice());
@@ -44,7 +47,7 @@ class Ex2PlanController {
 	}
 
 	@PutMapping("/annotated/plans/{id}/price")
-	Plan updatePriceAnnotated(@PathVariable String id, @RequestBody PriceUpdate update,
+	Plan updatePriceAnnotated(@PathVariable String id, @RequestBody PriceUpdateRequest update,
 			@RequestParam(defaultValue = "evict") String strategy) {
 		return isWriteThrough(strategy) ? annotated.updatePriceWriteThrough(id, update.monthlyPrice())
 				: annotated.updatePriceAndEvict(id, update.monthlyPrice());

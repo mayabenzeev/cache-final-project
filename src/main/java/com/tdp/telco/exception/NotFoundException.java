@@ -1,4 +1,4 @@
-package com.tdp.telco.data;
+package com.tdp.telco.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

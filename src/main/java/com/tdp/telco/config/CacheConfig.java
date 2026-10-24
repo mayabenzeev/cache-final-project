@@ -2,7 +2,7 @@ package com.tdp.telco.config;
 
 import tools.jackson.databind.json.JsonMapper;
 
-import com.tdp.telco.data.Plan;
+import com.tdp.telco.entity.Plan;
 
 import org.springframework.boot.cache.autoconfigure.RedisCacheManagerBuilderCustomizer;
 import org.springframework.cache.annotation.EnableCaching;

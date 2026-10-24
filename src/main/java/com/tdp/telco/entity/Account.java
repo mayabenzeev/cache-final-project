@@ -1,4 +1,4 @@
-package com.tdp.telco.data;
+package com.tdp.telco.entity;
 
 /**
  * A customer account. Most fields rarely change; dataUsedMb changes all the time.

@@ -1,4 +1,4 @@
-package com.tdp.telco.data;
+package com.tdp.telco.entity;
 
 import java.math.BigDecimal;
 

@@ -1,4 +1,4 @@
-package com.tdp.telco.data;
+package com.tdp.telco.repository;
 
 import java.util.List;
 import java.util.Map;

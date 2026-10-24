@@ -1,9 +1,10 @@
-package com.tdp.telco.bonusa;
+package com.tdp.telco.service;
 
 import java.util.Comparator;
 import java.util.List;
 
-import com.tdp.telco.data.SignupRepository;
+import com.tdp.telco.dto.PlanRankResponse;
+import com.tdp.telco.repository.SignupRepository;
 
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -14,11 +15,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class LeaderboardService {
 
-	public record PlanRank(String planId, long signups) {
-	}
-
 	// One key for the whole leaderboard: member = planId, score = number of sign-ups.
-	static final String LEADERBOARD_KEY = "telco:leaderboard:plan-signups";
+	public static final String LEADERBOARD_KEY = "telco:leaderboard:plan-signups";
 
 	private final StringRedisTemplate redis; // redis.opsForZSet() -> ZINCRBY / ZREVRANGE
 	private final SignupRepository signups;
@@ -34,20 +32,20 @@ public class LeaderboardService {
 		// redis.opsForZSet().incrementScore(LEADERBOARD_KEY, planId, 1)   (ZINCRBY)
 	}
 
-	public List<PlanRank> topPlans(int limit) {
+	public List<PlanRankResponse> topPlans(int limit) {
 		// TODO (Bonus A, step 2): read the top `limit` plans, highest score first:
 		// redis.opsForZSet().reverseRangeWithScores(LEADERBOARD_KEY, start, end)   (ZREVRANGE ... WITHSCORES)
-		// Redis ranges are inclusive. Map each TypedTuple to new PlanRank(value, score).
+		// Redis ranges are inclusive. Map each TypedTuple to new PlanRankResponse(value, score).
 		return List.of();
 	}
 
 	/** Provided: the "before" version - an expensive GROUP BY on every request. */
-	public List<PlanRank> topPlansFromDatabase(int limit) {
+	public List<PlanRankResponse> topPlansFromDatabase(int limit) {
 		return signups.countByPlan()
 			.entrySet()
 			.stream()
-			.map(e -> new PlanRank(e.getKey(), e.getValue()))
-			.sorted(Comparator.comparingLong(PlanRank::signups).reversed())
+			.map(e -> new PlanRankResponse(e.getKey(), e.getValue()))
+			.sorted(Comparator.comparingLong(PlanRankResponse::signups).reversed())
 			.limit(limit)
 			.toList();
 	}

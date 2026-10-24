@@ -1,10 +1,10 @@
-package com.tdp.telco.ex2;
+package com.tdp.telco.service;
 
 import java.math.BigDecimal;
 
-import com.tdp.telco.data.NotFoundException;
-import com.tdp.telco.data.Plan;
-import com.tdp.telco.data.PlanRepository;
+import com.tdp.telco.entity.Plan;
+import com.tdp.telco.exception.NotFoundException;
+import com.tdp.telco.repository.PlanRepository;
 
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;

@@ -1,6 +1,8 @@
-package com.tdp.telco.ex1;
+package com.tdp.telco.controller;
 
-import com.tdp.telco.data.Plan;
+import com.tdp.telco.entity.Plan;
+import com.tdp.telco.service.AnnotatedPlanService;
+import com.tdp.telco.service.ManualPlanService;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -9,12 +11,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/ex1")
-class Ex1PlanController {
+class PlanCatalogController {
 
 	private final ManualPlanService manual;
 	private final AnnotatedPlanService annotated;
 
-	Ex1PlanController(ManualPlanService manual, AnnotatedPlanService annotated) {
+	PlanCatalogController(ManualPlanService manual, AnnotatedPlanService annotated) {
 		this.manual = manual;
 		this.annotated = annotated;
 	}

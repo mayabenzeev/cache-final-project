@@ -1,4 +1,4 @@
-package com.tdp.telco.bonusb;
+package com.tdp.telco.service;
 
 import java.time.Duration;
 
@@ -29,7 +29,7 @@ public class SessionStore {
 		return redis.opsForValue().get(key(sessionId));
 	}
 
-	static String key(String sessionId) {
+	public static String key(String sessionId) {
 		return "telco:session:" + sessionId;
 	}
 

@@ -4,9 +4,9 @@ import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 
-import com.tdp.telco.data.AccountRepository;
-import com.tdp.telco.data.PlanRepository;
-import com.tdp.telco.data.SignupRepository;
+import com.tdp.telco.repository.AccountRepository;
+import com.tdp.telco.repository.PlanRepository;
+import com.tdp.telco.repository.SignupRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
