@@ -36,4 +36,18 @@ With your team, fill this in for **at least two** things you'll cache:
   Pub/sub is fire-and-forget, so for durable events use Redis Streams.
 </details>
 
-Done early? Try [Bonus A](bonus-a.md) or [Bonus B](bonus-b.md).
+## Bonus exercises
+
+Done early, or want homework? Two bonus exercises live on the `bonus` branch:
+
+- **Bonus A:** a live "most popular plans" leaderboard with a Redis sorted set.
+- **Bonus B:** what Redis deletes when memory fills up, and why TTLs matter for eviction.
+
+Commit your work first, then switch:
+
+```bash
+git commit -am "My workshop solutions"
+git switch bonus
+```
+
+The bonus pages are in `exercises/` on that branch.

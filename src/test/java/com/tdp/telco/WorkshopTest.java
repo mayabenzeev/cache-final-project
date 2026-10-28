@@ -6,7 +6,6 @@ import org.junit.jupiter.api.BeforeEach;
 
 import com.tdp.telco.common.repository.AccountRepository;
 import com.tdp.telco.common.repository.PlanRepository;
-import com.tdp.telco.common.repository.SignupRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -30,9 +29,6 @@ public abstract class WorkshopTest {
 	@Autowired
 	protected AccountRepository accountRepository;
 
-	@Autowired
-	protected SignupRepository signupRepository;
-
 	@BeforeEach
 	void cleanSlate() {
 		Set<String> keys = redis.keys("*");
@@ -41,7 +37,6 @@ public abstract class WorkshopTest {
 		}
 		planRepository.reset();
 		accountRepository.reset();
-		signupRepository.reset();
 	}
 
 	/** Redis TTL in seconds: -1 = key exists with no TTL, -2 = key doesn't exist. */
