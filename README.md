@@ -170,19 +170,11 @@ curl localhost:8080/ex1/plans/basic
 
 Or click the first request in `requests.http`.
 
-Every request is logged with its duration in the app console. Right now, nothing is cached yet, so every call
-goes to the slow database, every time:
+The response is just JSON. The **timing is printed in the app console** (the terminal running `./mvnw spring-boot:run`),
+one line per request:
 
 ```
-GET /ex1/plans/basic -> 200 in 1004 ms     <- slow database
-GET /ex1/plans/basic -> 200 in 1002 ms     <- slow database again
-```
-
-That's the problem Exercise 1 fixes. Once you've implemented the cache, the second call becomes a hit:
-
-```
-GET /ex1/plans/basic -> 200 in 1004 ms     <- miss: went to the slow database
-GET /ex1/plans/basic -> 200 in 3 ms        <- hit: came from Redis
+GET /ex1/plans/basic -> 200 in 1004 ms
 ```
 
 **Look inside Redis**, either way:
@@ -270,7 +262,13 @@ implement `planKey(id)`. Write down *why* in a comment.
 ./mvnw test -Dtest=Ex1Step2CacheAsideTest
 ```
 
-Restart the app and run `./scripts/time-it.sh /ex1/plans/basic` again. Notice the difference.
+Restart the app and run `./scripts/time-it.sh /ex1/plans/basic` again. The first call is a miss, and every call
+after it is a hit. The app console shows the same:
+
+```
+GET /ex1/plans/basic -> 200 in 1004 ms     <- miss: went to the slow database, then filled the cache
+GET /ex1/plans/basic -> 200 in 3 ms        <- hit: came from Redis
+```
 
 **Step 3: let Spring do it.** Now the same thing with Spring's cache abstraction:
 
