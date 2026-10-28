@@ -76,17 +76,19 @@ The last command downloads every dependency, starts a throwaway Redis in Docker 
   Setup OK: Java 25, Spring Boot, Docker and Redis all work.
 ```
 
-**Last step: connect RedisInsight to the workshop Redis.**
+**Last step: start the app once and connect RedisInsight.**
 
 ```bash
-docker compose up -d redis
+./mvnw spring-boot:run
 ```
 
-In RedisInsight, click **Add Redis database** and enter host `localhost`, port `6379`, database alias
-`telco-workshop`. RedisInsight saves it, so it's ready for the session.
+This also starts the workshop Redis for you. When you see `Started TelcoCacheWorkshopApplication`, open
+RedisInsight, click **Add Redis database** and enter host `localhost`, port `6379`, database alias
+`telco-workshop`. RedisInsight saves it, so it's ready for the session. Then stop the app with Ctrl+C.
+Redis keeps running in the background.
 
-If you see the ✅ and the `telco-workshop` database opens in RedisInsight, you're ready. If not, check
-[Troubleshooting](#troubleshooting) or bring the error to the session.
+If you saw `Setup OK`, the app started, and the `telco-workshop` database opens in RedisInsight, you're ready.
+If not, check [Troubleshooting](#troubleshooting) or bring the error to the session.
 
 ---
 
@@ -805,7 +807,7 @@ All Spring methods are on `StringRedisTemplate redis`. Try any command in `redis
 | `release version 25 not supported` / `invalid target release` | Maven is using an older JDK. `java -version` must say 25. Set `JAVA_HOME` to your JDK 25. |
 | `Port 6379 is already allocated` | Another Redis is running. Stop it (`brew services stop redis`, or `docker ps` and stop the container). |
 | App starts but `Connection refused` to Redis | Run `docker compose up -d redis` yourself and restart the app. |
-| RedisInsight can't connect | Check Redis is running (`docker compose up -d redis`). Use host `localhost`, port `6379`, and no username or password. |
+| RedisInsight can't connect | Check Redis is running: start the app, or run `docker compose up -d redis` to start only Redis. Use host `localhost`, port `6379`, and no username or password. |
 | Changed the code, nothing changed | Restart the app. Tests always use the latest code. |
 | A test passes in the IDE but you want the Maven output | `./mvnw test -Dtest=ClassName` |
 | Old cached data confuses you | In `redis-cli`: `FLUSHALL` (deletes everything in your local Redis). |
