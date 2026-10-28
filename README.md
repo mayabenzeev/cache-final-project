@@ -309,21 +309,21 @@ GET /ex1/plans/basic -> 200 in 3 ms        <- hit: came from Redis
 
 **Before Step 3: meet `@Cacheable`.** The cache-aside code you just wrote is the same in every project:
 look up the key, return on a hit, call the database on a miss, store the result. Spring can write it for you.
-You put one annotation on a method:
+You put one annotation on a method. For example, in a library app that caches books:
 
 ```java
-@Cacheable(cacheNames = "plans", key = "#id")
-public Plan getPlan(String id) {
-    return repository.findById(id)...;   // only the "load from the database" part
+@Cacheable(cacheNames = "books", key = "#isbn")
+public Book findBook(String isbn) {
+    return bookRepository.findByIsbn(isbn);   // only the "load from the database" part
 }
 ```
 
-Every call to `getPlan(id)` then goes through Spring first:
+Every call to `findBook(isbn)` then goes through Spring first:
 
-1. Spring builds the Redis key from the cache name and the key: `plans::basic`. `#id` means "the value of the
-   `id` parameter".
-2. **Hit:** Spring returns the cached `Plan`, and your method **doesn't run at all**.
-3. **Miss:** Spring runs your method and stores the `Plan` it returns under that key.
+1. Spring builds the Redis key from the cache name and the key: `findBook("978-0")` → `books::978-0`.
+   `#isbn` means "the value of the `isbn` parameter".
+2. **Hit:** Spring returns the cached `Book`, and the method **doesn't run at all**.
+3. **Miss:** Spring runs the method and stores the `Book` it returns under that key.
 
 It's the same flow as your `ManualPlanService`, without the Redis code. Things to know:
 
@@ -339,7 +339,7 @@ It's the same flow as your `ManualPlanService`, without the Redis code. Things t
 **Step 3: let Spring do it.**
 
 - **3a.** In [`ex1/service/AnnotatedPlanService.java`](src/main/java/com/tdp/telco/ex1/service/AnnotatedPlanService.java),
-  add the `@Cacheable` annotation above to `getPlan`.
+  add `@Cacheable` to `getPlan`. Use the cache name `"plans"`, and make the plan's id the key.
 - **3b.** In [`common/config/CacheConfig.java`](src/main/java/com/tdp/telco/common/config/CacheConfig.java),
   add `.entryTtl(...)` to the `"plans"` cache configuration. Use the same TTL as your Decision 2.
 
@@ -488,8 +488,9 @@ the cache with `opsForValue().set(...)`. Read the TODO's warning about TTLs.
 
 **Step 3: the annotation versions.** In `AnnotatedPlanPriceService`:
 
-- **3a.** `@CacheEvict(cacheNames = "plans", key = "#id")` on `updatePriceAndEvict`
-- **3b.** `@CachePut(cacheNames = "plans", key = "#id")` on `updatePriceWriteThrough`
+- **3a.** Add `@CacheEvict` to `updatePriceAndEvict`. It must point at the same cache entry that `getPlan`
+  reads: look at `getPlan`'s annotation.
+- **3b.** Add `@CachePut` to `updatePriceWriteThrough`, pointing at that same entry.
 
 ```bash
 ./mvnw test -Dtest=Ex2Step3AnnotationsTest
@@ -870,9 +871,9 @@ All Spring methods are on `StringRedisTemplate redis`. Try any command in `redis
 | Annotation | Does | Redis ops |
 |---|---|---|
 | `@EnableCaching` | turns the annotations on (in `CacheConfig`) | |
-| `@Cacheable(cacheNames="plans", key="#id")` | cache-aside: return cached value, else run the method and store the result | `GET plans::id`, on a miss `SET plans::id ... PX ttl` |
-| `@CacheEvict(cacheNames="plans", key="#id")` | run the method, then delete the entry | `DEL plans::id` |
-| `@CachePut(cacheNames="plans", key="#id")` | always run the method, store the **return value** | `SET plans::id ... PX ttl` |
+| `@Cacheable(cacheNames="books", key="#isbn")` | cache-aside: return cached value, else run the method and store the result | `GET books::<isbn>`, on a miss `SET books::<isbn> ... PX ttl` |
+| `@CacheEvict(cacheNames="books", key="#isbn")` | run the method, then delete the entry | `DEL books::<isbn>` |
+| `@CachePut(cacheNames="books", key="#isbn")` | always run the method, store the **return value** | `SET books::<isbn> ... PX ttl` |
 | `RedisCacheConfiguration.entryTtl(...)` | TTL per cache name (annotations have no TTL) | |
 
 ---
