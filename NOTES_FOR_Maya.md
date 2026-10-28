@@ -114,8 +114,9 @@ I extracted the deck's text and speaker notes and aligned the terminology:
    or (b) switch to Gradle with toolchain auto-provisioning, so the JDK downloads itself.
 2. **Docker Hub access** from the AT&T network. If pulls are blocked or rate-limited, point the images in
    `docker-compose.yml` and `TestcontainersConfiguration.REDIS_IMAGE` at an internal mirror.
-3. **OS.** Everything works on Windows except `scripts/time-it.sh` (bash). The README gives a PowerShell
-   `curl.exe` alternative, and `requests.http` and the app log show timings on any OS.
+3. **OS.** Everything works on Windows too (use `mvnw.cmd`). Timings come from the app console log, which is
+   the same on every OS. The README's `curl` examples use bash quoting. On Windows, `requests.http` sends the
+   same requests.
 4. **RedisInsight desktop app.** I assume everyone still has it from the lecture. "Before the session" lists it
    with an install command and has trainees add the `telco-workshop` database (`localhost:6379`) at home.
 5. **Domain.** I used the suggested telco domain: plans (`basic`, `unlimited`, ...), accounts (`acc-1001`, ...)

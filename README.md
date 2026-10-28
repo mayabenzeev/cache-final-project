@@ -200,19 +200,13 @@ The plan page calls `GET /ex1/plans/{id}`, and it takes **about 1 second, every 
 almost all reads: thousands of people look at plans, and prices change a few times a year. The database is
 doing the same expensive work over and over to return the same answer.
 
-Measure it:
-
-```bash
-./scripts/time-it.sh /ex1/plans/basic
-```
+Measure it: click the first request in `requests.http` three times and watch the app console:
 
 ```
-call 1: 200  1.01s
-call 2: 200  1.01s
-call 3: 200  1.00s
+GET /ex1/plans/basic -> 200 in 1004 ms
+GET /ex1/plans/basic -> 200 in 1002 ms
+GET /ex1/plans/basic -> 200 in 1003 ms
 ```
-
-(Or click the request in `requests.http`, or watch the app log.)
 
 ### 2. Think first
 
@@ -262,8 +256,8 @@ implement `planKey(id)`. Write down *why* in a comment.
 ./mvnw test -Dtest=Ex1Step2CacheAsideTest
 ```
 
-Restart the app and run `./scripts/time-it.sh /ex1/plans/basic` again. The first call is a miss, and every call
-after it is a hit. The app console shows the same:
+Restart the app and send the same request a few times again. The first call is a miss, and every call after it
+is a hit:
 
 ```
 GET /ex1/plans/basic -> 200 in 1004 ms     <- miss: went to the slow database, then filled the cache
