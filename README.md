@@ -210,7 +210,10 @@ GET /ex1/plans/basic -> 200 in 1003 ms
 
 ### 2. Think first
 
-Write your answers as comments in `ManualPlanService` before you code:
+**Your goal:** add a caching layer between the service and the slow database. Keep a copy of each plan in Redis,
+so repeated reads are served from Redis instead of the database.
+
+Before you code, write your answers as comments in `ManualPlanService`:
 
 1. **What should the key for plan `basic` look like?** Assume this Redis will also hold accounts, sessions
    and other teams' data.
@@ -370,6 +373,9 @@ The last call still says `65.00`. The cache is lying.
 
 ### 2. Think first
 
+**Your goal:** keep the cache correct when data changes. After a price update, the very next read must return
+the new price, not the cached old one.
+
 1. The read path is cache-aside and is already done for you (`getPlan`). **Which code path knows the data changed?**
 2. Two options: throw the cached copy away, or overwrite it with the new value. **Which one makes the *next*
    read slower? Which one does more work on *every* write?**
@@ -501,6 +507,9 @@ The hash line only looks right because `HashAccountCache` doesn't cache anything
 database on every call. Your job is to make it **fast *and* correct**.
 
 ### 2. Think first
+
+**Your goal:** cache the account in a Redis structure that fits how it's used, so a usage update changes only
+the one field that changed, inside Redis, without losing updates.
 
 1. Which fields are read together, and which field is read or written **alone**?
 2. Where does the "+10" happen in `StringAccountCache`: in Java or in Redis? Why does that matter when 16 threads do it at once?
