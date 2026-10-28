@@ -24,7 +24,7 @@ class Ex1Step3CacheableTest extends WorkshopTest {
 		assertThat(second).isEqualTo(first);
 		assertThat(planRepository.readCount())
 			.as("The slow database was read %d times for 2 identical requests. "
-					+ "Did you put @Cacheable(cacheNames = \"plans\", key = \"#id\") on AnnotatedPlanService.getPlan?",
+					+ "Is AnnotatedPlanService.getPlan annotated with @Cacheable, so Spring checks the cache first?",
 					planRepository.readCount())
 			.isEqualTo(1);
 	}
@@ -35,7 +35,7 @@ class Ex1Step3CacheableTest extends WorkshopTest {
 
 		assertThat(redis.hasKey("plans::unlimited"))
 			.as("Expected Spring to create the key \"plans::unlimited\" (<cacheName>::<key>). "
-					+ "Use cacheNames = \"plans\" and key = \"#id\"")
+					+ "Check the cache name and the key in your @Cacheable: which parameter holds the plan id?")
 			.isTrue();
 	}
 
