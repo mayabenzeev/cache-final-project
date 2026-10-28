@@ -18,8 +18,12 @@ class SetupCheckTest extends WorkshopTest {
 		assertThat(pong).isEqualTo("PONG");
 
 		System.out.println("""
+		********
+		
 		Setup OK: Java %s, Spring Boot, Docker and Redis all work.
-				""".formatted(Runtime.version().feature()));
+	
+		********
+		""".formatted(Runtime.version().feature()));
 	}
 
 }

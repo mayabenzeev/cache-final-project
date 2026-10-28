@@ -5,8 +5,6 @@ spring:
     type: redis
   docker:
     compose:
-      # Starts docker-compose.yml when the app starts, and leaves Redis running when you stop
-      # the app, so you can keep inspecting it with redis-cli and RedisInsight.
       lifecycle-management: start-only
 
 telco:

@@ -7,7 +7,7 @@ Things that need **your decision** are marked 🟡.
 
 | Branch | Contents |
 |---|---|
-| `main` | Start point for trainees: README, Docker Compose, the app with every exercise as TODOs. 23 tests fail on purpose, each with a hint. |
+| `main` | Start point for trainees: README + exercise pages, Docker Compose, the app with every exercise as TODOs. 23 tests fail on purpose, each with a hint. |
 | `solutions` | Everything solved, with comments explaining each decision. All 31 tests pass. |
 
 ### Why one branch instead of a branch per checkpoint
@@ -35,6 +35,28 @@ layer, invisible to controllers and repositories.
   use the same `"plans"` cache configuration.
 - **Tests mirror the exercise folders** (`ex1/`, `ex2/`, ...). The few members the tests need from the
   `service` subpackages (e.g. `planKey`, `LEADERBOARD_KEY`) are `public` for that reason.
+
+### Docs: one page per exercise, details collapsed
+
+The single README was 6,100 words, about 3,400 of them needed during the hour itself. That's 15–20 minutes of
+reading. It's now split by when each page is read:
+
+| File | Read when |
+|---|---|
+| `README.md` | at home (setup) and at the start (how it works, start the app) |
+| `exercises/ex1.md`, `ex2.md`, `ex3.md` | while doing that exercise |
+| `exercises/wrap-up.md` | minutes 48–60 |
+| `exercises/bonus-a.md`, `bonus-b.md` | fast finishers, homework |
+| `CHEATSHEET.md` | kept open in a tab |
+
+Each exercise page shows the goal, the problem, "Think first" and the numbered steps with their test commands.
+Everything else is in collapsible sections: the lecture recaps, the `StringRedisTemplate` / `@Cacheable`
+introductions, hints, solution commands and the Nest mapping. A trainee who opens nothing reads about 1,650 words
+in the hour.
+
+**Deviation from the handoff:** it asked for 8 parts per exercise. All 8 are still there, but "Reflect" moved
+from each exercise into `wrap-up.md` as the group discussion, so trainees don't pause alone mid-exercise. The
+bonus pages keep a one-line Reflect. The pre-split README is tagged `readme-before-trim`.
 
 ## Verified
 
@@ -66,7 +88,7 @@ layer, invisible to controllers and repositories.
 
 ## Timed dry run: estimated trainee time
 
-I worked through each exercise against the README, counting reading, thinking, typing, a ~10 s test run per
+I worked through each exercise against the exercise pages, counting reading, thinking, typing, a ~10 s test run per
 step and one or two app restarts:
 
 | Exercise | Estimate | Notes |
