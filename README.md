@@ -170,11 +170,19 @@ curl localhost:8080/ex1/plans/basic
 
 Or click the first request in `requests.http`.
 
-Every request is logged with its duration, so you can tell a hit from a miss at a glance:
+Every request is logged with its duration in the app console. Right now, nothing is cached yet, so every call
+goes to the slow database, every time:
 
 ```
-GET /ex1/plans/basic -> 200 in 1004 ms     <- went to the slow database
-GET /ex1/plans/basic -> 200 in 3 ms        <- came from Redis
+GET /ex1/plans/basic -> 200 in 1004 ms     <- slow database
+GET /ex1/plans/basic -> 200 in 1002 ms     <- slow database again
+```
+
+That's the problem Exercise 1 fixes. Once you've implemented the cache, the second call becomes a hit:
+
+```
+GET /ex1/plans/basic -> 200 in 1004 ms     <- miss: went to the slow database
+GET /ex1/plans/basic -> 200 in 3 ms        <- hit: came from Redis
 ```
 
 **Look inside Redis**, either way:
