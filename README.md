@@ -217,6 +217,12 @@ Before you code, write your answers as comments in `ManualPlanService`:
 
 1. **What should the key for plan `basic` look like?** Assume this Redis will also hold accounts, sessions
    and other teams' data.
+   Start with the entity you're caching, [`common/entity/Plan.java`](src/main/java/com/tdp/telco/common/entity/Plan.java):
+   which field identifies a plan? For more context:
+   - [`common/repository/PlanRepository.java`](src/main/java/com/tdp/telco/common/repository/PlanRepository.java)
+     shows the real plan ids (`basic`, `unlimited`, `family-4`, ...).
+   - [`common/entity/Account.java`](src/main/java/com/tdp/telco/common/entity/Account.java) is another entity with
+     an `id`. What stops a plan key from colliding with an account key?
 2. **What TTL would you give a plan, and why?** What does a longer TTL buy you, and what does it cost?
 
 ### 3. Concept recap
