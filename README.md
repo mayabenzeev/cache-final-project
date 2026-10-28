@@ -266,13 +266,34 @@ make `planKey(id)` return your key, and put your reasoning in the comment above 
 ./mvnw test -Dtest=Ex1Step1KeyDesignTest
 ```
 
+**Before Step 2: meet `StringRedisTemplate`.** In the lecture you talked to Redis with `redis-cli`. In Java you
+use Spring's `StringRedisTemplate`: one object that sends Redis commands for you. It's already injected into
+`ManualPlanService` as the field `redis`, so you don't need to create or configure anything.
+
+Its methods mirror the commands you know, grouped by data type:
+
+| redis-cli | `StringRedisTemplate` |
+|---|---|
+| `GET telco:plan:basic` | `redis.opsForValue().get("telco:plan:basic")` → the value, or `null` if the key doesn't exist |
+| `SET telco:plan:basic "..." EX 600` | `redis.opsForValue().set("telco:plan:basic", "...", Duration.ofMinutes(10))` |
+| `DEL telco:plan:basic` | `redis.delete("telco:plan:basic")` |
+| `TTL telco:plan:basic` | `redis.getExpire("telco:plan:basic")` |
+
+`opsForValue()` is for strings (Exercises 1 and 2), `opsForHash()` for hashes (Exercise 3) and `opsForZSet()`
+for sorted sets (Bonus A).
+
+The "String" in the name means keys and values are plain text. Redis can't store a Java `Plan` object, so you
+turn it into JSON text before `set`, and back into a `Plan` after `get`. The `json` field (also injected)
+does that: `json.writeValueAsString(plan)` and `json.readValue(text, Plan.class)`.
+
 **Step 2: cache-aside by hand.** In the same file:
 
 1. Set `PLAN_TTL` to your Decision 2 answer (e.g. `Duration.ofMinutes(...)`), with your reasoning in the comment above it.
-2. Implement `getPlan(id)` with `StringRedisTemplate`:
-   - `redis.opsForValue().get(key)` → `GET key` (returns `null` on a miss)
-   - `redis.opsForValue().set(key, value, ttl)` → `SET key value EX seconds`
-   - `json.writeValueAsString(plan)` / `json.readValue(text, Plan.class)` to (de)serialize
+2. Implement `getPlan(id)` with the cache-aside flow from the Concept recap, using the methods above:
+   - Look up `planKey(id)` in Redis.
+   - **Hit** (not `null`): turn the JSON back into a `Plan` and return it.
+   - **Miss** (`null`): load the plan from `repository` (that line is already there), store it as JSON with
+     `PLAN_TTL`, and return it.
 
 ```bash
 ./mvnw test -Dtest=Ex1Step2CacheAsideTest
