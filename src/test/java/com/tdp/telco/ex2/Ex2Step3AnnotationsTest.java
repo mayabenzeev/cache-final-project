@@ -27,7 +27,8 @@ class Ex2Step3AnnotationsTest extends WorkshopTest {
 
 		assertThat(redis.hasKey("plans::unlimited-premium"))
 			.as("plans::unlimited-premium should be deleted by the update. "
-					+ "Add @CacheEvict(cacheNames = \"plans\", key = \"#id\") to updatePriceAndEvict")
+					+ "Add @CacheEvict to updatePriceAndEvict, pointing at the same cache entry getPlan uses "
+					+ "(compare with getPlan's annotation)")
 			.isFalse();
 		assertThat(service.getPlan("unlimited-premium").monthlyPrice()).isEqualByComparingTo(NEW_PRICE);
 	}
@@ -41,7 +42,8 @@ class Ex2Step3AnnotationsTest extends WorkshopTest {
 
 		assertThat(service.getPlan("family-4").monthlyPrice())
 			.as("The cache still returns the old price. "
-					+ "Add @CachePut(cacheNames = \"plans\", key = \"#id\") to updatePriceWriteThrough")
+					+ "Add @CachePut to updatePriceWriteThrough, pointing at the same cache entry getPlan uses "
+					+ "(compare with getPlan's annotation)")
 			.isEqualByComparingTo(NEW_PRICE);
 		assertThat(planRepository.readCount())
 			.as("@CachePut should write the returned plan into the cache, so this read is a HIT")
