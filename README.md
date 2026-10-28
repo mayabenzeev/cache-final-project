@@ -307,12 +307,39 @@ GET /ex1/plans/basic -> 200 in 1004 ms     <- miss: went to the slow database, t
 GET /ex1/plans/basic -> 200 in 3 ms        <- hit: came from Redis
 ```
 
-**Step 3: let Spring do it.** Now the same thing with Spring's cache abstraction:
+**Before Step 3: meet `@Cacheable`.** The cache-aside code you just wrote is the same in every project:
+look up the key, return on a hit, call the database on a miss, store the result. Spring can write it for you.
+You put one annotation on a method:
 
-- **3a.** In [`ex1/service/AnnotatedPlanService.java`](src/main/java/com/tdp/telco/ex1/service/AnnotatedPlanService.java), annotate
-  `getPlan` with `@Cacheable`, using the cache name `"plans"` and the plan id as the key (`key = "#id"`).
-- **3b.** `@Cacheable` has no TTL attribute. In [`common/config/CacheConfig.java`](src/main/java/com/tdp/telco/common/config/CacheConfig.java),
-  add `.entryTtl(...)` to the `"plans"` cache configuration.
+```java
+@Cacheable(cacheNames = "plans", key = "#id")
+public Plan getPlan(String id) {
+    return repository.findById(id)...;   // only the "load from the database" part
+}
+```
+
+Every call to `getPlan(id)` then goes through Spring first:
+
+1. Spring builds the Redis key from the cache name and the key: `plans::basic`. `#id` means "the value of the
+   `id` parameter".
+2. **Hit:** Spring returns the cached `Plan`, and your method **doesn't run at all**.
+3. **Miss:** Spring runs your method and stores the `Plan` it returns under that key.
+
+It's the same flow as your `ManualPlanService`, without the Redis code. Three things to know:
+
+- **The TTL isn't on the annotation.** It's set per cache name, in
+  [`common/config/CacheConfig.java`](src/main/java/com/tdp/telco/common/config/CacheConfig.java). The JSON
+  conversion is configured there too.
+- **`@EnableCaching`** (already in `CacheConfig`) turns the annotations on. Without it, `@Cacheable` silently does nothing.
+- **It only works when called from another class.** Spring intercepts calls that come in from outside the
+  object, so if a method in `AnnotatedPlanService` called its own `getPlan`, the cache would be skipped.
+
+**Step 3: let Spring do it.**
+
+- **3a.** In [`ex1/service/AnnotatedPlanService.java`](src/main/java/com/tdp/telco/ex1/service/AnnotatedPlanService.java),
+  add the `@Cacheable` annotation above to `getPlan`.
+- **3b.** In [`common/config/CacheConfig.java`](src/main/java/com/tdp/telco/common/config/CacheConfig.java),
+  add `.entryTtl(...)` to the `"plans"` cache configuration. Use the same TTL as your Decision 2.
 
 ```bash
 ./mvnw test -Dtest=Ex1Step3CacheableTest
