@@ -2,21 +2,40 @@
 
 **You'll learn:** how to choose a Redis structure by how the data is used, and how to update one field atomically.
 
-**The problem.** An account has a name, address, plan and **data used this month**. Usage changes constantly; the
-rest almost never. [`StringAccountCache`](../src/main/java/com/tdp/telco/ex3/service/StringAccountCache.java)
-(provided) stores the whole account as one JSON string, so every usage update means: GET the JSON, parse it,
-change one number, SET it all back. Run this experiment, which sends 200 parallel usage updates:
+**The problem.** Customer accounts are cached in Redis. Most fields (name, address, plan) almost never change. One
+field changes all the time: `dataUsedMb`. Every time a phone uses data, the network sends a "+10 MB" event, and
+many arrive at once.
+
+Today [`StringAccountCache`](../src/main/java/com/tdp/telco/ex3/service/StringAccountCache.java) (provided) stores
+the whole account as **one JSON string**. To add 10 MB, it:
+
+1. GETs the whole JSON from Redis,
+2. adds 10 to `dataUsedMb` **in Java**,
+3. SETs the whole JSON back.
+
+That breaks when two events arrive at the same moment:
+
+| | Request A | Request B | `dataUsedMb` in Redis |
+|---|---|---|---|
+| 1 | GET → 4200 | | 4200 |
+| 2 | | GET → 4200 | 4200 |
+| 3 | SET 4210 | | 4210 |
+| 4 | | SET 4210 | 4210 ← should be 4220: A's +10 is **lost** |
+
+See it happen. This experiment sends 200 "+10 MB" updates at the same time:
 
 ```bash
 ./mvnw test -Dtest=Ex3CompareStringVsHashTest
 ```
 
 ```
+  Database (source of truth) : 6200 MB
   String cache (JSON, GET+SET): 4340 MB   -> 186 updates lost
+  Hash cache   (HINCRBY)      : 6200 MB   -> 0 updates lost
 ```
 
-Two requests read the same old value, both add 10 and both write back: one update vanishes. (The hash line looks
-right only because `HashAccountCache` doesn't cache anything yet: it reads the database every time.)
+The database is right; the string cache lost most of the updates. The hash line looks right only because
+`HashAccountCache` doesn't cache anything yet: it reads the slow database every time. That's what you'll build.
 
 **Your goal:** cache the account so a usage update changes only that one field, inside Redis, with no lost updates.
 
