@@ -7,8 +7,14 @@ Things that need **your decision** are marked 🟡.
 
 | Branch | Contents |
 |---|---|
-| `main` | Start point for trainees: README + exercise pages, Docker Compose, the app with every exercise as TODOs. 23 tests fail on purpose, each with a hint. |
-| `solutions` | Everything solved, with comments explaining each decision. All 31 tests pass. |
+| `main` | Start point for trainees: README + exercise pages, Docker Compose, Exercises 1–3 as TODOs. 18 of 25 tests fail on purpose, each with a hint. |
+| `solutions` | Exercises 1–3 solved, with comments explaining each decision. All 25 tests pass. |
+| `bonus` | `main` + Bonus A (leaderboard) and Bonus B (eviction) as TODOs, with their pages in `exercises/`. 23 of 31 tests fail on purpose. |
+| `bonus-solutions` | Everything solved, bonuses included. All 31 tests pass. |
+
+At your request the bonuses are off `main`, so the workshop branch has only what fits in the hour.
+`bonus` is built as `main` plus one commit that adds the bonuses back, so merging `main` into it later keeps
+them. After changing `main`, merge `main` into `solutions` and `bonus`, then `bonus` into `bonus-solutions`.
 
 ### Why one branch instead of a branch per checkpoint
 
@@ -23,7 +29,7 @@ You agreed to this before I started building. Recorded here so the reasoning sta
 
 ### Layout: one folder per exercise, layers inside
 
-At your request: `ex1/`, `ex2/`, `ex3/`, `bonusa/` and `bonusb/` each contain their own `controller/`, `dto/`
+At your request: `ex1/`, `ex2/`, `ex3/` (and `bonusa/`, `bonusb/` on the bonus branches) each contain their own `controller/`, `dto/`
 and `service/` folders, and `common/` holds what all exercises share (`entity/`, `repository/`, `exception/`,
 `config/`). A trainee opens one folder per exercise, and their TODOs are always in its `service/` folder,
 plus one in `common/config/CacheConfig` for Exercise 1. That also teaches where caching belongs: in the service
@@ -46,7 +52,7 @@ reading. It's now split by when each page is read:
 | `README.md` | at home (setup) and at the start (how it works, start the app) |
 | `exercises/ex1.md`, `ex2.md`, `ex3.md` | while doing that exercise |
 | `exercises/wrap-up.md` | minutes 48–60 |
-| `exercises/bonus-a.md`, `bonus-b.md` | fast finishers, homework |
+| `exercises/bonus-a.md`, `bonus-b.md` (on `bonus`) | fast finishers, homework |
 | `CHEATSHEET.md` | kept open in a tab |
 
 Each exercise page shows the goal, the problem, "Think first" and the numbered steps with their test commands.
@@ -60,10 +66,11 @@ bonus pages keep a one-line Reflect. The pre-split README is tagged `readme-befo
 
 ## Verified
 
-- `main`: the app starts, and each step test fails with the intended message. Of the 31 tests, 23 fail. The 8
-  that pass are `SetupCheckTest`, the two experiment tests, and 5 tests that only start to matter once an
+- `main`: the app starts, and each step test fails with the intended message. Of the 25 tests, 18 fail. The 7
+  that pass are `SetupCheckTest`, the string-vs-hash experiment, and 5 tests that only start to matter once an
   earlier step is done (e.g. "a write-through keeps the TTL").
-- `solutions`: all 31 tests pass. I ran the full suite several times to check for flakiness (see the async cache writes below).
+- `solutions`: all 25 tests pass. I ran the full suite several times to check for flakiness (see the async cache writes below).
+- `bonus`: 23 of 31 fail (main's 18 plus the 5 bonus step tests). `bonus-solutions`: all 31 pass.
 - The real app on the Docker Compose Redis: ~1000 ms on a miss, ~5–10 ms on a hit, price updates visible right
   after the PUT, and hashes and sorted sets visible in `redis-cli`.
 - Spring Boot's Docker Compose support starts `redis` automatically on `./mvnw spring-boot:run`.
