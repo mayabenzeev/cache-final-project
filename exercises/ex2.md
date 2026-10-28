@@ -54,6 +54,31 @@ In [`AnnotatedPlanPriceService.java`](../src/main/java/com/tdp/telco/ex2/service
   look at `getPlan`'s annotation.
 - **3b.** Add `@CachePut` to `updatePriceWriteThrough`, pointing at that same entry.
 
+<details>
+<summary>New to <code>@CacheEvict</code> and <code>@CachePut</code>? Read this first</summary>
+
+They're the write-side partners of `@Cacheable`, and they do what you wrote by hand in Steps 1 and 2. Same library
+app as before:
+
+```java
+@Cacheable(cacheNames = "books", key = "#isbn")      // read: cached under books::<isbn>
+public Book findBook(String isbn) { ... }
+
+@CacheEvict(cacheNames = "books", key = "#isbn")     // invalidate on write
+public Book renameBook(String isbn, String title) { ... }
+
+@CachePut(cacheNames = "books", key = "#isbn")       // write-through
+public Book repriceBook(String isbn, BigDecimal price) { ... }
+```
+
+- **`@CacheEvict`** runs the method, then deletes that cache entry: Step 1's `redis.delete(...)`. It deletes *after*
+  the method by default, so the database is updated first.
+- **`@CachePut`** always runs the method, then stores **what the method returns** in the cache: Step 2's `set(...)`.
+  That's why the method must return the updated object, not `void`.
+- The cache name and key must match the `@Cacheable` read exactly. Otherwise you evict or update a different
+  entry, and the read still finds the old one.
+</details>
+
 ```bash
 ./mvnw test -Dtest=Ex2Step3AnnotationsTest
 ```
