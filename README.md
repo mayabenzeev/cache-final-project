@@ -325,11 +325,13 @@ Every call to `getPlan(id)` then goes through Spring first:
 2. **Hit:** Spring returns the cached `Plan`, and your method **doesn't run at all**.
 3. **Miss:** Spring runs your method and stores the `Plan` it returns under that key.
 
-It's the same flow as your `ManualPlanService`, without the Redis code. Three things to know:
+It's the same flow as your `ManualPlanService`, without the Redis code. Things to know:
 
-- **The TTL isn't on the annotation.** It's set per cache name, in
-  [`common/config/CacheConfig.java`](src/main/java/com/tdp/telco/common/config/CacheConfig.java). The JSON
-  conversion is configured there too.
+- **The TTL isn't on the annotation.** `@Cacheable` has no TTL setting. Instead, each cache name gets its
+  own TTL in [`common/config/CacheConfig.java`](src/main/java/com/tdp/telco/common/config/CacheConfig.java).
+  Right now the `"plans"` cache has none, so its keys never expire: you'll add it in Step 3b. (Spring Boot can
+  also set one default TTL for all caches with the property `spring.cache.redis.time-to-live`.)
+- **The JSON conversion is already configured** in the same file, so cached plans are stored as readable JSON.
 - **`@EnableCaching`** (already in `CacheConfig`) turns the annotations on. Without it, `@Cacheable` silently does nothing.
 - **It only works when called from another class.** Spring intercepts calls that come in from outside the
   object, so if a method in `AnnotatedPlanService` called its own `getPlan`, the cache would be skipped.
