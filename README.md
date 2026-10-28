@@ -224,10 +224,12 @@ Redis stores every value under a key, like `user:123` in the lecture. You need a
   Which field identifies a plan?
 - The real plan ids are in [`common/repository/PlanRepository.java`](src/main/java/com/tdp/telco/common/repository/PlanRepository.java):
   `basic`, `unlimited`, `family-4`, ...
-- Accounts ([`common/entity/Account.java`](src/main/java/com/tdp/telco/common/entity/Account.java)) have ids too,
-  and other teams store data in the same Redis.
+- Accounts ([`common/entity/Account.java`](src/main/java/com/tdp/telco/common/entity/Account.java)) have ids too.
+  If a key were just the id, a plan and an account with the same id would overwrite each other.
+- Redis has no tables: all keys live side by side in one flat list. At work, one Redis is often shared by
+  several services. Your laptop's Redis only holds your data, but design the key as if it were shared.
 
-→ **Under what key would you store plan `basic`, so it can never clash with anyone else's key?**
+→ **Under what key would you store plan `basic`, so it can never clash with an account, or with another service's key?**
 
 **Decision 2: the TTL** (you'll set it in Step 2)
 
