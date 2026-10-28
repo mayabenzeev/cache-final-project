@@ -44,7 +44,7 @@ Something failed? See [Troubleshooting](#troubleshooting).
 | 18–33 min | [Exercise 2: Prices change, the cache lies](exercises/ex2.md) |
 | 33–48 min | [Exercise 3: The account that changes one field at a time](exercises/ex3.md) |
 | 48–60 min | [Wrap-up: apply it to your final project](exercises/wrap-up.md) |
-| Later | [Bonus A: leaderboard](exercises/bonus-a.md) · [Bonus B: eviction](exercises/bonus-b.md) |
+| Later | Bonus exercises: on the `bonus` branch (see the [wrap-up](exercises/wrap-up.md)) |
 
 Keep the **[cheat sheet](CHEATSHEET.md)** open in a tab: every Redis command with its Spring and Nest equivalent.
 
@@ -80,9 +80,8 @@ Changed the code? Restart the app. The tests don't need the app running.
 src/main/java/com/tdp/telco/
   common/         shared by every exercise (entities, the slow repositories, config)
   ex1/ ex2/ ex3/  one folder per exercise: controller/, dto/, service/  <- your TODOs are in service/
-  bonusa/ bonusb/
 src/test/java/com/tdp/telco/
-  ex1/ ex2/ ...   one test class per step, e.g. Ex1Step2CacheAsideTest
+  ex1/ ex2/ ex3/  one test class per step, e.g. Ex1Step2CacheAsideTest
 requests.http     every request, one click each
 ```
 

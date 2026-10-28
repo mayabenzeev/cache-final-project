@@ -1,19 +1,6 @@
 services:
-  # Exercises 1-3 and Bonus A
+  # Exercises 1-3
   redis:
     image: redis:8.10.2-alpine
     ports:
       - "6379:6379"
-
-  # Bonus B: tiny Redis with a memory limit.
-  # Start it with: docker compose --profile bonus-b up -d redis-small
-  redis-small:
-    image: redis:8.10.2-alpine
-    profiles: ["bonus-b"]
-    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
-    volumes:
-      - ./redis/bonus-b.conf:/usr/local/etc/redis/redis.conf:ro
-    ports:
-      - "6380:6379"
-    labels:
-      org.springframework.boot.ignore: true

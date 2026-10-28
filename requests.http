@@ -65,15 +65,3 @@ POST http://localhost:8080/ex3/accounts/acc-1001/usage?model=string
 Content-Type: application/json
 
 { "mb": 250 }
-
-
-### ---------------- Bonus A: leaderboard ----------------
-
-### Generate 500 random sign-ups
-POST http://localhost:8080/bonus-a/signups/simulate?count=500
-
-### Top plans from Redis (fast)
-GET http://localhost:8080/bonus-a/plans/top?limit=3
-
-### Top plans from the database (slow GROUP BY)
-GET http://localhost:8080/bonus-a/plans/top-from-db?limit=3
