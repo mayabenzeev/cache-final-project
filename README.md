@@ -213,18 +213,28 @@ GET /ex1/plans/basic -> 200 in 1003 ms
 **Your goal:** add a caching layer between the service and the slow database. Keep a copy of each plan in Redis,
 so repeated reads are served from Redis instead of the database.
 
-Before you code, write your answers as comments in `ManualPlanService`:
+Caching forces you to make two design decisions. Don't write code yet: think about them for a couple of
+minutes and write your answers down. You'll use them in the steps below.
 
-1. **What should the key for plan `basic` look like?** *(You'll implement this in Step 1, `planKey(id)`.)*
-   Assume this Redis will also hold accounts, sessions and other teams' data.
-   Start with the entity you're caching, [`common/entity/Plan.java`](src/main/java/com/tdp/telco/common/entity/Plan.java):
-   which field identifies a plan? For more context:
-   - [`common/repository/PlanRepository.java`](src/main/java/com/tdp/telco/common/repository/PlanRepository.java)
-     shows the real plan ids (`basic`, `unlimited`, `family-4`, ...).
-   - [`common/entity/Account.java`](src/main/java/com/tdp/telco/common/entity/Account.java) is another entity with
-     an `id`. What stops a plan key from colliding with an account key?
-2. **What TTL would you give a plan, and why?** *(You'll set this in Step 2, `PLAN_TTL`.)* What does a longer
-   TTL buy you, and what does it cost?
+**Decision 1: the cache key** (you'll code it in Step 1)
+
+Redis stores every value under a key, like `user:123` in the lecture. You need a key for each plan.
+
+- Open [`common/entity/Plan.java`](src/main/java/com/tdp/telco/common/entity/Plan.java), the thing you're caching.
+  Which field identifies a plan?
+- The real plan ids are in [`common/repository/PlanRepository.java`](src/main/java/com/tdp/telco/common/repository/PlanRepository.java):
+  `basic`, `unlimited`, `family-4`, ...
+- Accounts ([`common/entity/Account.java`](src/main/java/com/tdp/telco/common/entity/Account.java)) have ids too,
+  and other teams store data in the same Redis.
+
+→ **Under what key would you store plan `basic`, so it can never clash with anyone else's key?**
+
+**Decision 2: the TTL** (you'll set it in Step 2)
+
+A TTL (time to live) makes Redis delete the cached copy after a while, so a stale copy can't live forever.
+Plan prices change only a few times a year.
+
+→ **How long should a cached plan live? What do you gain with a longer TTL, and what do you risk?**
 
 ### 3. Concept recap
 
@@ -247,8 +257,8 @@ data. Short TTL: fresher data, more database traffic.
 
 ### 4. Tasks
 
-**Step 1: design the key.** In [`ex1/service/ManualPlanService.java`](src/main/java/com/tdp/telco/ex1/service/ManualPlanService.java),
-implement `planKey(id)`. Write down *why* in a comment.
+**Step 1: the key.** Turn Decision 1 into code. In [`ex1/service/ManualPlanService.java`](src/main/java/com/tdp/telco/ex1/service/ManualPlanService.java),
+make `planKey(id)` return your key, and put your reasoning in the comment above it.
 
 ```bash
 ./mvnw test -Dtest=Ex1Step1KeyDesignTest
@@ -256,7 +266,7 @@ implement `planKey(id)`. Write down *why* in a comment.
 
 **Step 2: cache-aside by hand.** In the same file:
 
-1. Choose `PLAN_TTL` and write down your reasoning.
+1. Set `PLAN_TTL` to your Decision 2 answer (e.g. `Duration.ofMinutes(...)`), with your reasoning in the comment above it.
 2. Implement `getPlan(id)` with `StringRedisTemplate`:
    - `redis.opsForValue().get(key)` → `GET key` (returns `null` on a miss)
    - `redis.opsForValue().set(key, value, ttl)` → `SET key value EX seconds`
